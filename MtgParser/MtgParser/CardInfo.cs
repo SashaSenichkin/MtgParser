@@ -16,8 +16,8 @@ public class CardInfo
 
     public CardInfo( IHtmlCollection<IElement> cellsText,  IHtmlCollection<IElement> cellsInfo)
     {
-        Title = cellsInfo[0].TextContent;
-        CardType = cellsInfo[1].TextContent;
+        Title = cellsInfo[0].TextContent.Trim();
+        CardType = cellsInfo[1].TextContent.Replace("\n", String.Empty);
         SummonCost = cellsInfo[2].TextContent;
         Str = cellsInfo[3].TextContent;
         Rarity = cellsInfo[4].TextContent;
@@ -29,13 +29,13 @@ public class CardInfo
     public override string ToString()
     {
         var sb = new StringBuilder();
-        sb.Append($"title = {Title}");
-        sb.Append($"cardType = {CardType}");
-        sb.Append($"summonCost = {SummonCost}");
-        sb.Append($"str = {Str}");
-        sb.Append($"rarity = {Rarity}");
-        sb.Append($"engDescr = {EngDescr}");
-        sb.Append($"rusDescr = {RusDescr}");
+        sb.AppendLine($"title = {Title}");
+        sb.AppendLine($"cardType = {CardType}");
+        sb.AppendLine($"summonCost = {SummonCost}");
+        sb.AppendLine($"str = {Str}");
+        sb.AppendLine($"rarity = {Rarity}");
+        sb.AppendLine($"engDescr = {EngDescr}");
+        sb.AppendLine($"rusDescr = {RusDescr}");
         return sb.ToString();
     }
 }
