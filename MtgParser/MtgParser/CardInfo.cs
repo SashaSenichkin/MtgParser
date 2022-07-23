@@ -13,12 +13,22 @@ public class CardInfo
     public string Rarity;
     public string EngDescr;
     public string RusDescr;
+    public string ImgPath;
+    public string SetShortName;
+    public string SetFullName;
 
+    
     public CardInfo( IHtmlCollection<IElement> cellsText,  IHtmlCollection<IElement> cellsInfo)
     {
         Title = cellsInfo[0].TextContent.Trim();
+        
+        var img = cellsInfo[0].QuerySelectorAll("img").FirstOrDefault() as AngleSharp.Html.Dom.IHtmlImageElement;
+        ImgPath = img?.Source;
+        SetShortName = img?.AlternativeText;
+        SetFullName = String.Concat(img.Title.TakeWhile(x => x != '/')).Trim();
+
         CardType = cellsInfo[1].TextContent.Replace("\n", String.Empty);
-        SummonCost = cellsInfo[2].TextContent;
+        SummonCost = String.Join(" ", cellsInfo[2].QuerySelectorAll(".Mana").Select(x=> (x as AngleSharp.Html.Dom.IHtmlImageElement)?.AlternativeText));
         Str = cellsInfo[3].TextContent;
         Rarity = cellsInfo[4].TextContent;
         
