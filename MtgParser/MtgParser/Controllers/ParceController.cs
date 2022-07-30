@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MtgParser.Context;
+using MtgParser.Model;
 
 namespace MtgParser.Controllers;
 
@@ -7,27 +9,17 @@ namespace MtgParser.Controllers;
 [Route("[controller]")]
 public class ParceController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+    private readonly MtgContext _dbcontext;
 
-    private readonly ILogger<ParceController> _logger;
-
-    public ParceController(ILogger<ParceController> logger)
+    public ParceController(MtgContext dbcontext)
     {
-        _logger = logger;
+        _dbcontext = dbcontext;
     }
-
-    // [HttpGet(Name = "GetWeatherForecast")]
-    // public IEnumerable<WeatherForecast> Get()
-    // {
-    //     return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-    //         {
-    //             Date = DateTime.Now.AddDays(index),
-    //             TemperatureC = Random.Shared.Next(-20, 55),
-    //             Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-    //         })
-    //         .ToArray();
-    // }
+    
+    [HttpGet(Name = "GetCardInfo")]
+    public Card Get()
+    {
+        var parser = new ParseLogic();
+        return parser.
+    }
 }

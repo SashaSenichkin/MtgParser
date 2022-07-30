@@ -4,8 +4,7 @@ using AngleSharp.Dom;
 
 namespace MtgParser;
 
-
-class Program111
+public class ParseLogic
 {
     private const string baseUrl = "http://www.mtg.ru/cards/search.phtml?Title=";
     static async Task Main(string[] args)
