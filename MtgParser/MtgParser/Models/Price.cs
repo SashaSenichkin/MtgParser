@@ -1,8 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace MtgParser.Model;
 
-[Table("Prices")]
 public class Price : BaseModel
 {
     public decimal Value { get; set; }

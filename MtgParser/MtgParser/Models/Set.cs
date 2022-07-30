@@ -1,8 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace MtgParser.Model;
 
-[Table("Sets")]
 public class Set : BaseModel
 {
     public string RusName { get; set; }
