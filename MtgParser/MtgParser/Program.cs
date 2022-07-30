@@ -1,57 +1,46 @@
-﻿using System.Text;
-using AngleSharp;
-using AngleSharp.Dom;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MtgParser.Context;
 
 namespace MtgParser;
 
-
-class Program
+public class Program
 {
-    private const string baseUrl = "http://www.mtg.ru/cards/search.phtml?Title=";
-    static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
-
-        if (args.Length == 0)
-        {
-            Console.WriteLine("название карты передать аргументом");
-#if DEBUG
-            var doc = await GetCardInfo("Пустыня");
-            var result = ParceDoc(doc);
-            File.WriteAllText("test.txt", result.ToString());
-#endif
-            return;
-        }
-        try
-        {
-            var doc = await GetCardInfo(args[0]);
-            var result = ParceDoc(doc);
-            File.WriteAllText("test.txt", result.ToString());
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-
-    }
-
-    private static CardInfo ParceDoc(IDocument doc)
-    {
-        string cellSelectorMain = ".SearchCardInfoText";
-        IHtmlCollection<IElement> cellsText = doc.QuerySelectorAll(cellSelectorMain);
+        CheckAndUpMigrations();
+        var builder = WebApplication.CreateBuilder(args);
         
-        string cellSelectorInfo = ".SearchCardInfoDIV";
-        IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(cellSelectorInfo);
 
-        return new CardInfo(cellsText: cellsText, cellsInfo: cellsInfo);
+        builder.Services.AddControllers();
+
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+        
+        var version = ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MtgConnection"));
+        builder.Services.AddDbContext<MtgContext>(options => options.UseMySql(version));
+        
+        var app = builder.Build();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.UseHttpsRedirection();
+
+        app.MapControllers();
+
+        app.Run();
     }
 
-    private static async Task<IDocument> GetCardInfo(string cardName)
+    private static void CheckAndUpMigrations()
     {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-        IConfiguration config = Configuration.Default.WithDefaultLoader();
-        IBrowsingContext context = BrowsingContext.New(config);
-        return await context.OpenAsync(baseUrl + cardName);
+        throw new NotImplementedException();
     }
 }
