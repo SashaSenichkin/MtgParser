@@ -1,10 +1,8 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace MtgParser.Model;
 
-[Table("Rarities")]
-public class Rarity : BaseModel
+public class Keyword : BaseModel
 {
     public string Name { get; set; }
     public string RusName { get; set; }
+    public ICollection<Card> Cards { get; set; }
 }

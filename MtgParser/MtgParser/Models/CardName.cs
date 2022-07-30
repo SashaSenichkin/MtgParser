@@ -1,8 +1,10 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace MtgParser.Model;
 
-public class CardNames
+[Table("Cards_Names")]
+public class CardName : BaseModel
 {
-    public int Id { get; set; }
     public string NameRus { get; set; }
     public string SetShort { get; set; }
 }
