@@ -22,8 +22,25 @@ public class ParseController : ControllerBase
     }
     
     [HttpGet(Name = "GetCardInfo")]
-    public async Task<Card> Get(string cardName)
+    public async Task<Card> GetCardInfo(string cardName)
     {
         return await _parseService.ParseOneCard(cardName);
+    }
+    
+    [HttpPost(Name = "PostToDb")]
+    public async Task<bool> PostToDb(string cardName)
+    {
+        try
+        {
+            Card card = await _parseService.ParseOneCard(cardName);
+            await _dbContext.Cards.AddAsync(card);
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
     }
 }
