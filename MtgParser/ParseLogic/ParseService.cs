@@ -22,10 +22,10 @@ public class ParseService
     private const string CellSelectorInfo = ".SearchCardInfoDIV";
     private const string MtgRuInConfig = "BaseMtgRu";
 
-    public ParseService(IConfiguration fullConfig)
+    public ParseService(IConfiguration fullConfig, MtgContext context)
     {
         _urlsConfig = fullConfig.GetSection("ExternalUrls");
-        //_context = context;
+        _context = context;
     }
     
     public async Task<Card> ParseOneCard(string cardName)
@@ -65,18 +65,27 @@ public class ParseService
         IHtmlImageElement? img = cellsInfo[0].QuerySelectorAll("img").FirstOrDefault() as IHtmlImageElement;
         (string cmc, string color) cmcColor = GetManaCostAndColor(cellsInfo[2]);
         (string power, string toughness) powerAndTough = GetPowerAndToughness(cellsInfo[3]);
-        (List<String> keywords, string text) keywordsAndText = GetKeywordsAndText(cellsInfo[0]);
+        (List<string> keywords, string text) keywordsAndText = GetKeywordsAndText(cellsText[0]);
+        List<Keyword> keywords = keywordsAndText.keywords.Select(x => _context.Keywords
+                                                         .First(y => y.Name == x || y.RusName == x))
+                                                         .ToList();
+        
+        string rarityText = GetSubstringAfterChar(cellsInfo[4].TextContent, '-').Trim();
+        Rarity rarity = _context.Rarities.First(x => x.RusName == rarityText || x.Name == rarityText);
+        
         Card result = new()
         {
             Name = cellsInfo[0].TextContent.Trim(),
             Img = img?.Source,
-            Type = GetSubstringAfterChar(cellsInfo[1].TextContent.Replace("\n", String.Empty),':'),
-            Text = cellsText[0].TextContent,
+            Type = GetSubstringAfterChar(cellsInfo[1].TextContent.Replace("\n", String.Empty),':').Trim(),
+            Text = keywordsAndText.text,
             TextRus = cellsText[1].TextContent,
             Power = powerAndTough.power,
             Toughness = powerAndTough.toughness,
             Cmc =  cmcColor.cmc,
-            Color = cmcColor.color
+            Color = cmcColor.color,
+            Rarity = rarity,
+            Keywords = keywords
         };
 
         return result;
@@ -84,37 +93,40 @@ public class ParseService
 
     private (List<string> keywords, string text) GetKeywordsAndText(IElement element)
     {
-        throw new NotImplementedException();
+        string allKeywords = element.InnerHtml[..element.InnerHtml.IndexOf('<')];
+        List<string> keywordsResult = allKeywords.Split(',', StringSplitOptions.TrimEntries).ToList();
+        string textResult = element.TextContent[allKeywords.Length..];
+        
+        return (keywordsResult, textResult);
     }
 
-    private string GetSubstringAfterChar(string text, params char[] separators)
+    private static string GetSubstringAfterChar(string text, params char[] separators)
     {
         for (int i = 0; i < text.Length; i++)
         {
             if (separators.Contains(text[i]))
-                return text.Substring(i+1);
+                return text[(i+1)..];
         }
 
         return text;
     }
 
-    private (string power, string toughness) GetPowerAndToughness(IElement source)
+    private static (string power, string toughness) GetPowerAndToughness(IElement source)
     {
         string powerAndTough = GetSubstringAfterChar(source.TextContent, ':');
         int separator = powerAndTough.IndexOf('/');
         return (powerAndTough[..^separator].Trim(), powerAndTough[(separator + 1)..].Trim());
     }
 
-    private (string cmc, string color) GetManaCostAndColor(IElement source)
+    private static (string cmc, string color) GetManaCostAndColor(IElement source)
     {
-        IEnumerable<string> allData = source.QuerySelectorAll(".Mana")
-            .Select(x => (x as IHtmlImageElement)?.AlternativeText)
-            .Where(x => !String.IsNullOrEmpty(x))!;
+        List<string> allData = source.QuerySelectorAll(".Mana")
+                                     .Select(x => (x as IHtmlImageElement)?.AlternativeText)
+                                     .Where(x => !String.IsNullOrEmpty(x))
+                                     .ToList()!;
 
         List<string> allColorData = allData.Where(x => x.All(y => !y.IsDigit())).ToList();
-
         String color = String.Join(", ", allColorData);
-
         int cmc = allColorData.Count;
 
         if (Int32.TryParse(allData.FirstOrDefault(x => x.All(y => y.IsDigit())), out int digit))
