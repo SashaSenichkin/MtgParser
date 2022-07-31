@@ -7,7 +7,7 @@ namespace MtgParser.Context;
 
 public class MtgContext : DbContext
 {
-    public MtgContext(DbContextOptions<MtgContext> options):base(options)
+    public MtgContext(DbContextOptions options):base(options)
     {}
     
     public DbSet<Keyword> Keywords { get; set; }
@@ -36,9 +36,10 @@ public class MtgContextFactory : IDesignTimeDbContextFactory<MtgContext>
             .AddEnvironmentVariables()
             .Build();
         
-        var optionsBuilder = new DbContextOptionsBuilder<MtgContext>();
-        var version = ServerVersion.AutoDetect(config.GetConnectionString("MtgConnection"));
-        optionsBuilder.UseMySql(version);
+        DbContextOptionsBuilder<MtgContext> optionsBuilder = new DbContextOptionsBuilder<MtgContext>();
+        string? connectionString = config.GetConnectionString("MtgContext");
+        ServerVersion? version = ServerVersion.AutoDetect(connectionString);
+        optionsBuilder.UseMySql(connectionString, version);
         
         return new MtgContext(optionsBuilder.Options);
     }

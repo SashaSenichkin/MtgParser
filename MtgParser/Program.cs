@@ -20,14 +20,15 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
  
-        builder.Services.AddSingleton<ParseService>();
-        
-        ServerVersion? version = ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MtgConnection"));
-        builder.Services.AddDbContext<MtgContext>(options => options.UseMySql(version));
+        builder.Services.AddScoped<ParseService>();
+
+        string? connectionString = builder.Configuration.GetConnectionString("MtgContext");
+        ServerVersion? version = ServerVersion.AutoDetect(connectionString);
+        builder.Services.AddDbContext<MtgContext>(options => options.UseMySql(connectionString, version));
         
         WebApplication app = builder.Build();
         
-        //CheckAndUpdateDb(app);
+        CheckAndUpdateDb(app);
 
         if (app.Environment.IsDevelopment())
         {
