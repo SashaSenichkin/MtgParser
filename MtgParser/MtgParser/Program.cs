@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MtgParser.Context;
+using MtgParser.ParseLogic;
 
 namespace MtgParser;
 
@@ -12,19 +13,21 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        CheckAndUpMigrations();
-        var builder = WebApplication.CreateBuilder(args);
-        
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllers();
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+ 
+        builder.Services.AddSingleton<ParseService>();
         
-        var version = ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MtgConnection"));
+        ServerVersion? version = ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MtgConnection"));
         builder.Services.AddDbContext<MtgContext>(options => options.UseMySql(version));
         
-        var app = builder.Build();
+        WebApplication app = builder.Build();
+        
+        //CheckAndUpdateDb(app);
 
         if (app.Environment.IsDevelopment())
         {
@@ -35,12 +38,12 @@ public class Program
         app.UseHttpsRedirection();
 
         app.MapControllers();
-
         app.Run();
     }
 
-    private static void CheckAndUpMigrations()
+    public static void CheckAndUpdateDb(IApplicationBuilder app)
     {
-        throw new NotImplementedException();
+        using IServiceScope scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        scope.ServiceProvider.GetService<MtgContext>()?.Database.Migrate();
     }
 }

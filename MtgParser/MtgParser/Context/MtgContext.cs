@@ -1,4 +1,3 @@
-using System.Security.Policy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -27,7 +26,7 @@ public class MtgContextFactory : IDesignTimeDbContextFactory<MtgContext>
     public MtgContext CreateDbContext(string[] args)
     {
         // Get environment
-        string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
         // Build config
         IConfiguration config = new ConfigurationBuilder()
@@ -38,7 +37,8 @@ public class MtgContextFactory : IDesignTimeDbContextFactory<MtgContext>
             .Build();
         
         var optionsBuilder = new DbContextOptionsBuilder<MtgContext>();
-        optionsBuilder.UseMySQL(config.GetConnectionString("MtgConnection"));
+        var version = ServerVersion.AutoDetect(config.GetConnectionString("MtgConnection"));
+        optionsBuilder.UseMySql(version);
         
         return new MtgContext(optionsBuilder.Options);
     }
