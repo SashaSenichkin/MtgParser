@@ -2,7 +2,7 @@
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
     "MtgParser": {
-      "launchBrowser": false,
+      "launchBrowser": true,
       "applicationUrl": "https://localhost:5001",
       "launchUrl": "swagger",
       "commandName": "Project",
