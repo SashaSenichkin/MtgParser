@@ -51,7 +51,7 @@ public class ParseService
         return await context.OpenAsync(_urlsConfig[MtgRuInConfig] + cardName);
     }
     
-    private Card ParseDoc(IDocument doc)
+    public Card ParseDoc(IDocument doc)
     {
         IHtmlCollection<IElement> cellsText = doc.QuerySelectorAll(CellSelectorMain);
         
@@ -67,19 +67,21 @@ public class ParseService
         (string power, string toughness) powerAndTough = GetPowerAndToughness(cellsInfo[3]);
         (List<string> keywords, string text) keywordsAndText = GetKeywordsAndText(cellsText[0]);
         List<Keyword> keywords = keywordsAndText.keywords.Select(x => _context.Keywords
-                                                         .First(y => y.Name == x || y.RusName == x))
-                                                         .ToList();
+                                                         .FirstOrDefault(y => y.Name == x || y.RusName == x))
+                                                         .Where(x => x != null)
+                                                         .ToList()!;
         
         string rarityText = GetSubstringAfterChar(cellsInfo[4].TextContent, '-').Trim();
         Rarity rarity = _context.Rarities.First(x => x.RusName == rarityText || x.Name == rarityText);
-        
+        bool isRusCard = cellsText.Length > 1;
         Card result = new()
         {
             Name = cellsInfo[0].TextContent.Trim(),
             Img = img?.Source,
             Type = GetSubstringAfterChar(cellsInfo[1].TextContent.Replace("\n", String.Empty),':').Trim(),
             Text = keywordsAndText.text,
-            TextRus = cellsText[1].TextContent,
+            TextRus = isRusCard ? cellsText[1].TextContent:String.Empty,
+            IsRus = isRusCard,
             Power = powerAndTough.power,
             Toughness = powerAndTough.toughness,
             Cmc =  cmcColor.cmc,
@@ -94,7 +96,10 @@ public class ParseService
     private (List<string> keywords, string text) GetKeywordsAndText(IElement element)
     {
         string allKeywords = element.InnerHtml[..element.InnerHtml.IndexOf('<')];
-        List<string> keywordsResult = allKeywords.Split(',', StringSplitOptions.TrimEntries).ToList();
+        List<string> keywordsResult = allKeywords.Split(',', StringSplitOptions.TrimEntries)
+                                                 .Where(x => !string.IsNullOrWhiteSpace(x))
+                                                 .ToList();
+        
         string textResult = element.TextContent[allKeywords.Length..];
         
         return (keywordsResult, textResult);
@@ -125,13 +130,26 @@ public class ParseService
                                      .Where(x => !String.IsNullOrEmpty(x))
                                      .ToList()!;
 
-        List<string> allColorData = allData.Where(x => x.All(y => !y.IsDigit())).ToList();
-        String color = String.Join(", ", allColorData);
+        List<string> allColorData = allData.Where(x => x.All(y => !IsDigitOrX(y))).ToList();
+        
+        String color = String.Join(", ", allColorData.Distinct());
+        var isHaveAnyX = allData.Any(x => x[0] == 'X');
+        string cmcResult = isHaveAnyX ? "X" : String.Empty;
+        
         int cmc = allColorData.Count;
-
         if (Int32.TryParse(allData.FirstOrDefault(x => x.All(y => y.IsDigit())), out int digit))
             cmc += digit;
 
-        return (cmc.ToString(), color);
+        if (!string.IsNullOrEmpty(cmcResult))
+            cmcResult += ", ";
+            
+        cmcResult += cmc.ToString();
+
+        return (cmcResult, color);
+    }
+
+    private static bool IsDigitOrX(char symbol)
+    {
+        return symbol.IsDigit() || symbol == 'X';
     }
 }

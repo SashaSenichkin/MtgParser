@@ -11,7 +11,7 @@ public class Card : BaseModel
     public string Power { get; set; }
     public string Toughness { get; set; }
     public string Img { get; set; }
-    public byte IsRus { get; set; } 
+    public bool IsRus { get; set; } 
     
     public Rarity Rarity { get; set; }
     
