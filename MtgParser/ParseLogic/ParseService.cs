@@ -67,7 +67,7 @@ public class ParseService
         (string power, string toughness) powerAndTough = GetPowerAndToughness(cellsInfo[3]);
         (List<string> keywords, string text) keywordsAndText = GetKeywordsAndText(cellsText[0]);
         List<Keyword> keywords = keywordsAndText.keywords.Select(x => _context.Keywords
-                                                         .FirstOrDefault(y => y.Name == x || y.RusName == x))
+                                                         .FirstOrDefault(y => x.Contains(y.Name) || y.RusName == x))
                                                          .Where(x => x != null)
                                                          .ToList()!;
         
@@ -95,7 +95,13 @@ public class ParseService
 
     private (List<string> keywords, string text) GetKeywordsAndText(IElement element)
     {
-        string allKeywords = element.InnerHtml[..element.InnerHtml.IndexOf('<')];
+        var closeTag = element.InnerHtml.IndexOf('<');
+        if (closeTag < 0)
+        {
+            return (new List<String>(), element.TextContent);
+        }
+        
+        string allKeywords = element.InnerHtml[..closeTag];
         List<string> keywordsResult = allKeywords.Split(',', StringSplitOptions.TrimEntries)
                                                  .Where(x => !string.IsNullOrWhiteSpace(x))
                                                  .ToList();
@@ -120,6 +126,11 @@ public class ParseService
     {
         string powerAndTough = GetSubstringAfterChar(source.TextContent, ':');
         int separator = powerAndTough.IndexOf('/');
+        if (separator < 0)
+        {
+            return ("-", "-");
+        }
+        
         return (powerAndTough[..^separator].Trim(), powerAndTough[(separator + 1)..].Trim());
     }
 
@@ -133,13 +144,18 @@ public class ParseService
         List<string> allColorData = allData.Where(x => x.All(y => !IsDigitOrX(y))).ToList();
         
         String color = String.Join(", ", allColorData.Distinct());
-        var isHaveAnyX = allData.Any(x => x[0] == 'X');
-        string cmcResult = isHaveAnyX ? "X" : String.Empty;
+        if (String.IsNullOrWhiteSpace(color))
+        {
+            color = "-";
+        }
         
+        Boolean isHaveAnyX = allData.Any(x => x[0] == 'X');
+
         int cmc = allColorData.Count;
         if (Int32.TryParse(allData.FirstOrDefault(x => x.All(y => y.IsDigit())), out int digit))
             cmc += digit;
 
+        string cmcResult = isHaveAnyX ? "X" : String.Empty;
         if (!string.IsNullOrEmpty(cmcResult))
             cmcResult += ", ";
             
