@@ -32,9 +32,11 @@ public class Tests
 
         _dbContext.Keywords.Add(new Keyword() {Name = "Indestructible", RusName = "Неразрушимость"});
         _dbContext.Keywords.Add(new Keyword() {Name = "haste", RusName = "Ускорение"});
+        _dbContext.Keywords.Add(new Keyword() {Name = "Casualty", RusName = "Потери"});
         
         _dbContext.Rarities.Add(new Rarity() {Name = "Мythic", RusName = "Раритетная" });
         _dbContext.Rarities.Add(new Rarity() {Name = "Special", RusName = "Специальная" });
+        _dbContext.Rarities.Add(new Rarity() {Name = "Uncommon", RusName = "Необычная" });
 
         _dbContext.SaveChanges();
         
@@ -99,5 +101,47 @@ public class Tests
         Assert.AreEqual("/", card.Power);
         Assert.AreEqual("7", card.Cmc);
         Assert.AreEqual("R", card.Color);
+    }
+    
+    [Test]
+    public void NoPowerTest()
+    {
+        using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
+
+        IDocument doc = GetDocument("A Little Chat.htm", context);
+        Card card = _parseService.ParseDoc(doc);
+        
+        Assert.AreEqual("-", card.Toughness);
+        Assert.AreEqual("-", card.Power);
+        Assert.AreEqual("2", card.Cmc);
+        Assert.AreEqual("U", card.Color);
+    }
+    
+    [Test]
+    public void ArtifactTest()
+    {
+        using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
+
+        IDocument doc = GetDocument("Lucky Clove.htm", context);
+        Card card = _parseService.ParseDoc(doc);
+        
+        Assert.AreEqual("-", card.Toughness);
+        Assert.AreEqual("-", card.Power);
+        Assert.AreEqual("2", card.Cmc);
+        Assert.AreEqual("-", card.Color);
+    }
+    
+    [Test]
+    public void abstractLandTest()
+    {
+        using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
+
+        IDocument doc = GetDocument("Secluded Steppe.htm", context);
+        Card card = _parseService.ParseDoc(doc);
+        
+        Assert.AreEqual("-", card.Toughness);
+        Assert.AreEqual("-", card.Power);
+        Assert.AreEqual("2", card.Cmc);
+        Assert.AreEqual("-", card.Color);
     }
 }
