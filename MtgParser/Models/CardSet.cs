@@ -10,4 +10,5 @@ public class CardSet: BaseModel
     
     public int Quantity { get; set; }
     public byte IsFoil { get; set; }
+    public Rarity Rarity { get; set; }
 }

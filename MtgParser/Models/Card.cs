@@ -13,7 +13,5 @@ public class Card : BaseModel
     public string Img { get; set; }
     public bool IsRus { get; set; } 
     
-    public Rarity Rarity { get; set; }
-    
     public ICollection<Keyword> Keywords { get; set; }
 }

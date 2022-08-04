@@ -27,7 +27,7 @@ public class ParseManyController : ControllerBase
     {
         try
         {
-            var source = _dbContext.CardsNames;
+            List<CardName> source = _dbContext.CardsNames.ToList();
             foreach (CardName cardRequest in source)
             {
                 Card card = await _parseService.ParseOneCard(cardRequest.Name);

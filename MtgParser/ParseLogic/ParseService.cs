@@ -86,7 +86,6 @@ public class ParseService
             Toughness = powerAndTough.toughness,
             Cmc =  cmcColor.cmc,
             Color = cmcColor.color,
-            Rarity = rarity,
             Keywords = keywords
         };
 

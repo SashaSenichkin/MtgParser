@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MtgParser.Context;
 
@@ -10,9 +11,10 @@ using MtgParser.Context;
 namespace MtgParser.Migrations
 {
     [DbContext(typeof(MtgContext))]
-    partial class MtgContextModelSnapshot : ModelSnapshot
+    [Migration("20220804232614_CardsNames_addFields")]
+    partial class CardsNames_addFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,6 +65,9 @@ namespace MtgParser.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int>("RarityId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -80,6 +85,8 @@ namespace MtgParser.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RarityId");
 
                     b.ToTable("Cards");
                 });
@@ -126,17 +133,12 @@ namespace MtgParser.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("RarityId")
-                        .HasColumnType("int");
-
                     b.Property<int>("SetId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CardId");
-
-                    b.HasIndex("RarityId");
 
                     b.HasIndex("SetId");
 
@@ -245,17 +247,22 @@ namespace MtgParser.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MtgParser.Model.Card", b =>
+                {
+                    b.HasOne("MtgParser.Model.Rarity", "Rarity")
+                        .WithMany()
+                        .HasForeignKey("RarityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Rarity");
+                });
+
             modelBuilder.Entity("MtgParser.Model.CardSet", b =>
                 {
                     b.HasOne("MtgParser.Model.Card", "Card")
                         .WithMany()
                         .HasForeignKey("CardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MtgParser.Model.Rarity", "Rarity")
-                        .WithMany()
-                        .HasForeignKey("RarityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -266,8 +273,6 @@ namespace MtgParser.Migrations
                         .IsRequired();
 
                     b.Navigation("Card");
-
-                    b.Navigation("Rarity");
 
                     b.Navigation("Set");
                 });
