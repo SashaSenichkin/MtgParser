@@ -37,10 +37,11 @@ public class Tests
         _dbContext.Rarities.Add(new Rarity() {Name = "Мythic", RusName = "Раритетная" });
         _dbContext.Rarities.Add(new Rarity() {Name = "Special", RusName = "Специальная" });
         _dbContext.Rarities.Add(new Rarity() {Name = "Uncommon", RusName = "Необычная" });
+        _dbContext.Rarities.Add(new Rarity() {Name = "Common", RusName = "Обычная" });
 
         _dbContext.SaveChanges();
         
-        var appSettings = @"{""ExternalUrls"": {""BaseMtgRu"": ""http://www.mtg.ru/cards/search.phtml?Title=""}}";
+        var appSettings = @"{""ExternalUrls"": {""BaseMtgRu"": ""http://www.mtg.ru/cards/search.phtml"",""MtgRuInfoTable"": ""http://www.mtg.ru/cards/card_info_table.phtml?Action=ShowCardVersion&card=""}}";
 
         var builder = new ConfigurationBuilder();
         builder.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettings)));
@@ -67,7 +68,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Hazoret the Fervent.htm", context);
-        Card card = _parseService.ParseDoc(doc);
+        Card card = _parseService.ParseCard(doc);
         
         Assert.AreEqual("4", card.Toughness);
         Assert.AreEqual("5", card.Power);
@@ -81,7 +82,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Gyrus Waker of Corpses.htm", context);
-        Card card = _parseService.ParseDoc(doc);
+        Card card = _parseService.ParseCard(doc);
         
         Assert.AreEqual("0", card.Toughness);
         Assert.AreEqual("0", card.Power);
@@ -95,7 +96,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Infinity Elemental.htm", context);
-        Card card = _parseService.ParseDoc(doc);
+        Card card = _parseService.ParseCard(doc);
         
         Assert.AreEqual("5", card.Toughness);
         Assert.AreEqual("/", card.Power);
@@ -109,7 +110,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("A Little Chat.htm", context);
-        Card card = _parseService.ParseDoc(doc);
+        Card card = _parseService.ParseCard(doc);
         
         Assert.AreEqual("-", card.Toughness);
         Assert.AreEqual("-", card.Power);
@@ -123,7 +124,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Lucky Clove.htm", context);
-        Card card = _parseService.ParseDoc(doc);
+        Card card = _parseService.ParseCard(doc);
         
         Assert.AreEqual("-", card.Toughness);
         Assert.AreEqual("-", card.Power);
@@ -137,11 +138,11 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Secluded Steppe.htm", context);
-        Card card = _parseService.ParseDoc(doc);
+        Card card = _parseService.ParseCard(doc);
         
         Assert.AreEqual("-", card.Toughness);
         Assert.AreEqual("-", card.Power);
-        Assert.AreEqual("2", card.Cmc);
+        Assert.AreEqual("0", card.Cmc);
         Assert.AreEqual("-", card.Color);
     }
 }

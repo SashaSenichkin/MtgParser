@@ -34,7 +34,7 @@ public class ParseService
         try
         {
             IDocument doc = await GetCardInfo(cardName);
-            Card result = ParseDoc(doc);
+            Card result = ParseCard(doc);
             return result;
         }
         catch (Exception e)
@@ -52,47 +52,139 @@ public class ParseService
         return await context.OpenAsync(_urlsConfig[MtgRuInConfig] + cardName);
     }
     
-    public Card ParseDoc(IDocument doc)
+    private async Task<IDocument> GetSetInfo(string cardVersion)
     {
-        IHtmlCollection<IElement> cellsText = doc.QuerySelectorAll(CellSelectorMain);
-        
-        IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
-
-        return SplitDataToFields(cellsText: cellsText, cellsInfo: cellsInfo);
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        IAngleConfig config = Configuration.Default.WithDefaultLoader();
+        IBrowsingContext context = BrowsingContext.New(config);
+        return await context.OpenAsync(_urlsConfig[MtgRuInfoTableConfig] + cardVersion);
     }
     
-    private Card SplitDataToFields( IHtmlCollection<IElement> cellsText,  IHtmlCollection<IElement> cellsInfo)
+    public Card ParseCard(IDocument doc)
     {
-        IHtmlImageElement? img = cellsInfo[0].QuerySelectorAll("img").FirstOrDefault() as IHtmlImageElement;
-        (string cmc, string color) cmcColor = GetManaCostAndColor(cellsInfo[2]);
-        (string power, string toughness) powerAndTough = GetPowerAndToughness(cellsInfo[3]);
-        (List<string> keywords, string text) keywordsAndText = GetKeywordsAndText(cellsText[0]);
-        List<Keyword> keywords = keywordsAndText.keywords.Select(x => _context.Keywords
-                                                         .FirstOrDefault(y => x.Contains(y.Name) || y.RusName == x))
-                                                         .Where(x => x != null)
-                                                         .ToList()!;
+        Card result = new Card();
+        IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
+        FillCardData(result, cellsInfo);
         
-        string rarityText = GetSubstringAfterChar(cellsInfo[4].TextContent, '-').Trim();
-        Rarity rarity = _context.Rarities.First(x => x.RusName == rarityText || x.Name == rarityText);
-        bool isRusCard = cellsText.Length > 1;
-        Card result = new()
-        {
-            Name = cellsInfo[0].TextContent.Trim(),
-            Img = img?.Source,
-            Type = GetSubstringAfterChar(cellsInfo[1].TextContent.Replace("\n", String.Empty),':').Trim(),
-            Text = keywordsAndText.text,
-            TextRus = isRusCard ? cellsText[1].TextContent:String.Empty,
-            IsRus = isRusCard,
-            Power = powerAndTough.power,
-            Toughness = powerAndTough.toughness,
-            Cmc =  cmcColor.cmc,
-            Color = cmcColor.color,
-            Keywords = keywords
-        };
+        IHtmlCollection<IElement> cellsText = doc.QuerySelectorAll(CellSelectorMain);
+        FillCardText(result, cellsText);
+
+        return result;
+    }
+    
+    public CardSet ParseCardSet(IDocument doc, CardName fullCardInfo)
+    {
+        Card card = ParseCard(doc);
+        IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
+
+        
+        Set set = GetCardSet(fullCardInfo, cellsInfo[5]);
+        CardSet result = GetOrCreateCardSet(set, card);
+        
+        result.Quantity = fullCardInfo.Quantity;
+        result.IsFoil = (byte)(fullCardInfo.IsFoil ? 1 : 0);
+        
+        string rarityText = GetSubstringAfterChar(cellsInfo[4].TextContent, '-');
+        result.Rarity = _context.Rarities.First(x => x.RusName == rarityText || x.Name == rarityText);
 
         return result;
     }
 
+    private Set GetCardSet(CardName cardName, IElement element)
+    {
+        IEnumerable<String> splitted = element.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => GetSubstringAfterChar(x, ','));
+        IEnumerable<String> cardVersions = splitted.Select(x => x[..x.IndexOf(',')].Trim());
+
+        foreach (String cardVersion in cardVersions)
+        {
+            Task<IDocument> docT = GetSetInfo(cardVersion);
+            docT.Wait();
+            IHtmlCollection<IElement> cellsInfo = docT.Result.QuerySelectorAll(CellSelectorInfo);
+            Set set = GetOrCreateSet(cellsInfo[0]);
+            if (set.ShortName == cardName.SetShort)
+            {
+                return set;
+            }
+        }
+
+        return null;
+    }
+
+    private CardSet GetOrCreateCardSet(Set set, Card card)
+    {
+        CardSet result = _context.CardsSets.FirstOrDefault(x => x.Set.Equals(set) && x.Card == card);
+        if (result!= null)
+        {
+            return result;
+        }
+
+        CardSet newCardSet = new CardSet()
+        {
+            Card = card,
+            Set = set
+        };
+        return newCardSet;
+    }
+
+    private Set GetOrCreateSet(IElement element)
+    {
+        IHtmlImageElement imgData = (IHtmlImageElement) element.QuerySelector("img")!;
+        Set? set = _context.Sets.FirstOrDefault(x => x.ShortName == imgData.AlternativeText);
+        if (set != null)
+        {
+            return set;
+        }
+        
+        Int32 separatorIndex = imgData.Title.IndexOf("//");
+        Set newSet = new Set()
+        {
+            FullName = imgData.Title[..separatorIndex].Trim(),
+            ShortName = imgData.AlternativeText,
+            SearchText = imgData.Title.Replace(' ', '+'),
+            SetImg = imgData.Source
+        };
+        
+        String titlePart = imgData.Title[separatorIndex..].Trim();
+        if (newSet.FullName != titlePart)
+        {
+            newSet.RusName = titlePart;
+        }
+
+        _context.Sets.Add(newSet);
+        _context.SaveChanges();
+        return newSet;
+    }
+
+    private void FillCardText(Card card, IHtmlCollection<IElement> cellsText)
+    {
+        (List<string> keywords, string text) keywordsAndText = GetKeywordsAndText(cellsText[0]);
+        List<Keyword> keywords = keywordsAndText.keywords.Select(x => _context.Keywords
+                .FirstOrDefault(y => x.Contains(y.Name) || y.RusName == x))
+            .Where(x => x != null)
+            .ToList()!;
+        
+        bool isRusCard = cellsText.Length > 1;
+        card.Text = keywordsAndText.text;
+        card.TextRus = isRusCard ? cellsText[1].TextContent : String.Empty;
+        card.IsRus = isRusCard;
+        card.Keywords = keywords;
+    }
+
+    private void FillCardData(Card card, IHtmlCollection<IElement> cellsInfo)
+    {
+        IHtmlImageElement? img = cellsInfo[0].QuerySelectorAll("img").FirstOrDefault() as IHtmlImageElement;
+        (string cmc, string color) cmcColor = GetManaCostAndColor(cellsInfo[2]);
+        (string power, string toughness) powerAndTough = GetPowerAndToughness(cellsInfo[3]);
+
+        card.Power = powerAndTough.power;
+        card.Toughness = powerAndTough.toughness;
+        card.Cmc = cmcColor.cmc;
+        card.Color = cmcColor.color;
+        card.Name = cellsInfo[0].TextContent.Trim();
+        card.Img = img?.Source;
+        card.Type = GetSubstringAfterChar(cellsInfo[1].TextContent.Replace("\n", String.Empty), ':');
+    }
+    
     private (List<string> keywords, string text) GetKeywordsAndText(IElement element)
     {
         var closeTag = element.InnerHtml.IndexOf('<');
@@ -119,7 +211,7 @@ public class ParseService
                 return text[(i+1)..];
         }
 
-        return text;
+        return text.Trim();
     }
 
     private static (string power, string toughness) GetPowerAndToughness(IElement source)
