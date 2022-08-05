@@ -21,6 +21,7 @@ public class ParseService
     private const string CellSelectorMain = ".SearchCardInfoText";
     private const string CellSelectorInfo = ".SearchCardInfoDIV";
     private const string MtgRuInConfig = "BaseMtgRu";
+    private const string MtgRuInfoTableConfig = "MtgRuInfoTable";
 
     public ParseService(IConfiguration fullConfig, MtgContext context)
     {
