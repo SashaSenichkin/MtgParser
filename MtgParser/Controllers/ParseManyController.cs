@@ -30,8 +30,11 @@ public class ParseManyController : ControllerBase
             List<CardName> source = _dbContext.CardsNames.ToList();
             foreach (CardName cardRequest in source)
             {
-                Card card = await _parseService.ParseOneCard(cardRequest.Name);
-                await _dbContext.Cards.AddAsync(card);
+                CardSet cardSet = await _parseService.ParseOneCardSet(cardRequest);
+                if (cardSet.Id != default)
+                {
+                    await _dbContext.CardsSets.AddAsync(cardSet);
+                }
             }
             
             await _dbContext.SaveChangesAsync();
