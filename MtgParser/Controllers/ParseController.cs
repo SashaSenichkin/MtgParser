@@ -27,6 +27,12 @@ public class ParseController : ControllerBase
         return await _parseService.ParseOneCard(cardName);
     }
     
+    [HttpGet(Name = "GetCardSetInfo")]
+    public async Task<CardSet> GetCardSetInfo(string cardName, string setShortName)
+    {
+        return await _parseService.ParseOneCardSet(cardName, setShortName);
+    }
+    
     [HttpPost(Name = "PostToDb")]
     public async Task<bool> PostToDb(string cardName)
     {

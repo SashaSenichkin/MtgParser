@@ -42,8 +42,23 @@ public class ParseService
             Console.WriteLine(e);
             throw;
         }
-
     }
+    
+    public async Task<CardSet> ParseOneCardSet(string cardName, string setShortName)
+    {
+        try
+        {
+            IDocument doc = await GetCardInfo(cardName);
+            CardSet result = ParseCardSet(doc, new CardName(){SetShort = setShortName});
+            return result;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+    
     private async Task<IDocument> GetCardInfo(string cardName)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -72,7 +87,7 @@ public class ParseService
         return result;
     }
     
-    public CardSet ParseCardSet(IDocument doc, CardName fullCardInfo)
+    private CardSet ParseCardSet(IDocument doc, CardName fullCardInfo)
     {
         Card card = ParseCard(doc);
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
@@ -84,7 +99,7 @@ public class ParseService
         result.Quantity = fullCardInfo.Quantity;
         result.IsFoil = (byte)(fullCardInfo.IsFoil ? 1 : 0);
         
-        string rarityText = GetSubstringAfterChar(cellsInfo[4].TextContent, '-');
+        string rarityText = GetSubstringAfterChar(cellsInfo[4].TextContent, '-').Trim();
         result.Rarity = _context.Rarities.First(x => x.RusName == rarityText || x.Name == rarityText);
 
         return result;
@@ -140,11 +155,12 @@ public class ParseService
         {
             FullName = imgData.Title[..separatorIndex].Trim(),
             ShortName = imgData.AlternativeText,
-            SearchText = imgData.Title.Replace(' ', '+'),
             SetImg = imgData.Source
         };
         
-        String titlePart = imgData.Title[separatorIndex..].Trim();
+        newSet.SearchText = newSet.FullName.Replace(' ', '+');
+
+        String titlePart = imgData.Title[separatorIndex..].Trim('/', ' ');
         if (newSet.FullName != titlePart)
         {
             newSet.RusName = titlePart;
