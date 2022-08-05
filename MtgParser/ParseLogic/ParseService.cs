@@ -46,10 +46,15 @@ public class ParseService
     
     public async Task<CardSet> ParseOneCardSet(string cardName, string setShortName)
     {
+        return await ParseOneCardSet(new CardName() { Name = cardName, SetShort = setShortName });
+    }
+    
+    public async Task<CardSet> ParseOneCardSet(CardName cardName)
+    {
         try
         {
-            IDocument doc = await GetCardInfo(cardName);
-            CardSet result = ParseCardSet(doc, new CardName(){SetShort = setShortName});
+            IDocument doc = await GetCardInfo(cardName.Name ?? cardName.NameRus);
+            CardSet result = ParseCardSet(doc, cardName);
             return result;
         }
         catch (Exception e)
@@ -91,7 +96,6 @@ public class ParseService
     {
         Card card = ParseCard(doc);
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
-
         
         Set set = GetCardSet(fullCardInfo, cellsInfo[5]);
         CardSet result = GetOrCreateCardSet(set, card);
