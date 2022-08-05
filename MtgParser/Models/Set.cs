@@ -6,4 +6,10 @@ public class Set : BaseModel
     public string FullName { get; set; }
     public string ShortName { get; set; }
     public string SearchText { get; set; }
+    public string SetImg { get; set; }
+    
+    public override Boolean Equals(Object? obj)
+    {
+        return ShortName == (obj as Set)?.ShortName;
+    }
 }
