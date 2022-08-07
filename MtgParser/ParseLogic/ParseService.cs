@@ -20,6 +20,8 @@ public class ParseService
 
     private const string CellSelectorMain = ".SearchCardInfoText";
     private const string CellSelectorInfo = ".SearchCardInfoDIV";
+    private const string FullTableInfo = ".NoteDiv";
+    
     private const string MtgRuInConfig = "BaseMtgRu";
     private const string MtgRuInfoTableConfig = "MtgRuInfoTable";
 
@@ -88,6 +90,10 @@ public class ParseService
         
         IHtmlCollection<IElement> cellsText = doc.QuerySelectorAll(CellSelectorMain);
         FillCardText(result, cellsText);
+        
+        IHtmlCollection<IElement> fullTable = doc.QuerySelectorAll(FullTableInfo);
+        IHtmlImageElement img = fullTable.First().QuerySelector("img") as IHtmlImageElement;
+        result.Img = img.Source.Replace("_middle", "");
 
         return result;
     }
@@ -192,7 +198,6 @@ public class ParseService
 
     private void FillCardData(Card card, IHtmlCollection<IElement> cellsInfo)
     {
-        IHtmlImageElement? img = cellsInfo[0].QuerySelectorAll("img").FirstOrDefault() as IHtmlImageElement;
         (string cmc, string color) cmcColor = GetManaCostAndColor(cellsInfo[2]);
         (string power, string toughness) powerAndTough = GetPowerAndToughness(cellsInfo[3]);
 
@@ -201,7 +206,6 @@ public class ParseService
         card.Cmc = cmcColor.cmc;
         card.Color = cmcColor.color;
         card.Name = cellsInfo[0].TextContent.Trim();
-        card.Img = img?.Source;
         card.Type = GetSubstringAfterChar(cellsInfo[1].TextContent.Replace("\n", String.Empty), ':');
     }
     
