@@ -1,16 +1,18 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MtgParser.Context;
 using MtgParser.ParseLogic;
+using Serilog;
 
 namespace MtgParser;
 
 public class Program
 {
+
     public static void Main(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -19,7 +21,13 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
- 
+        
+        builder.Host.UseSerilog((context, services, configuration) => configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext()
+            .WriteTo.Console());
+        
         builder.Services.AddScoped<ParseService>();
 
         string? connectionString = builder.Configuration.GetConnectionString("MtgContext");
@@ -32,14 +40,15 @@ public class Program
 
         app.UseSwagger();
         app.UseSwaggerUI();
-
+        app.UseSerilogRequestLogging();
+        
         app.UseHttpsRedirection();
 
         app.MapControllers();
         app.Run();
     }
 
-    public static void CheckAndUpdateDb(IApplicationBuilder app)
+    private static void CheckAndUpdateDb(IApplicationBuilder app)
     {
         using IServiceScope scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         scope.ServiceProvider.GetService<MtgContext>()?.Database.Migrate();
