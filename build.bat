@@ -1,0 +1,1 @@
+dotnet build MtgParser/MtgParser.csproj
