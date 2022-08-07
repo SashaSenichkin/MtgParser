@@ -31,7 +31,7 @@ public class ParseManyController : ControllerBase
             foreach (CardName cardRequest in source)
             {
                 CardSet cardSet = await _parseService.ParseOneCardSet(cardRequest);
-                if (cardSet.Id != default)
+                if (cardSet.Id == default)
                 {
                     await _dbContext.CardsSets.AddAsync(cardSet);
                 }
