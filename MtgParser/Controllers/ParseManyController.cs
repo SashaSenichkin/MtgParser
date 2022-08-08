@@ -15,16 +15,14 @@ public class ParseManyController : ControllerBase
     private readonly ParseService _parseService;
     private readonly ILogger _logger;
     private readonly MtgContext _dbContext;
-
-
+    
     public ParseManyController(MtgContext dbContext, ParseService parseService, ILogger<ParseManyController> logger)
     {
         _parseService = parseService;
         _logger = logger;
         _dbContext = dbContext;
     }
-    
-    
+
     [HttpPost(Name = "PostMany")]
     public async Task<bool> PostToDb()
     {
@@ -33,18 +31,7 @@ public class ParseManyController : ControllerBase
             List<CardName> source = _dbContext.CardsNames.ToList();
             foreach (CardName cardRequest in source)
             {
-                try
-                {
-                    CardSet cardSet = await _parseService.ParseOneCardSet(cardRequest);
-                    if (cardSet.Id == default)
-                    {
-                        await _dbContext.CardsSets.AddAsync(cardSet);
-                    }
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e.Message + e.StackTrace);
-                }
+                await ProcessOneCardName(cardRequest);
             }
             
             await _dbContext.SaveChangesAsync();
@@ -54,6 +41,22 @@ public class ParseManyController : ControllerBase
         {
             _logger.LogCritical("some general error " + e.Message + e.StackTrace);
             return false;
+        }
+    }
+
+    private async Task ProcessOneCardName(CardName cardRequest)
+    {
+        try
+        {
+            CardSet cardSet = await _parseService.ParseOneCardSet(cardRequest);
+            if (cardSet.Id == default)
+            {
+                await _dbContext.CardsSets.AddAsync(cardSet);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message + e.StackTrace);
         }
     }
 }

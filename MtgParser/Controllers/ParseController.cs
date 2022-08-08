@@ -13,8 +13,7 @@ public class ParseController : ControllerBase
 {
     private readonly ParseService _parseService;
     private readonly MtgContext _dbContext;
-
-
+    
     public ParseController(MtgContext dbContext, ParseService parseService)
     {
         _parseService = parseService;

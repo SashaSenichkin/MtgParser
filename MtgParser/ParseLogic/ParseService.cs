@@ -143,7 +143,7 @@ public class ParseService
             return result;
         }
 
-        CardSet newCardSet = new CardSet()
+        CardSet newCardSet = new()
         {
             Card = card,
             Set = set
@@ -160,7 +160,7 @@ public class ParseService
             return set;
         }
         
-        Int32 separatorIndex = imgData.Title.IndexOf("//");
+        int separatorIndex = imgData.Title.IndexOf("//");
         Set newSet = new Set()
         {
             FullName = imgData.Title[..separatorIndex].Trim(),
@@ -183,35 +183,35 @@ public class ParseService
 
     private void FillCardText(Card card, IHtmlCollection<IElement> cellsText)
     {
-        (List<string> keywords, string text) keywordsAndText = GetKeywordsAndText(cellsText[0]);
-        List<Keyword> keywords = keywordsAndText.keywords.Select(x => _context.Keywords
+        (List<string> keywordsText, string text) = GetKeywordsAndText(cellsText[0]);
+        List<Keyword> keywords = keywordsText.Select(x => _context.Keywords
                 .FirstOrDefault(y => x.Contains(y.Name) || y.RusName == x))
             .Where(x => x != null)
             .ToList()!;
         
         bool isRusCard = cellsText.Length > 1;
-        card.Text = keywordsAndText.text;
+        card.Text = text;
         card.TextRus = isRusCard ? cellsText[1].TextContent : String.Empty;
         card.IsRus = isRusCard;
         card.Keywords = keywords;
     }
 
-    private void FillCardData(Card card, IHtmlCollection<IElement> cellsInfo)
+    private static void FillCardData(Card card, IHtmlCollection<IElement> cellsInfo)
     {
-        (string cmc, string color) cmcColor = GetManaCostAndColor(cellsInfo[2]);
-        (string power, string toughness) powerAndTough = GetPowerAndToughness(cellsInfo[3]);
+        (string cmc, string color) = GetManaCostAndColor(cellsInfo[2]);
+        (string power, string toughness) = GetPowerAndToughness(cellsInfo[3]);
 
-        card.Power = powerAndTough.power;
-        card.Toughness = powerAndTough.toughness;
-        card.Cmc = cmcColor.cmc;
-        card.Color = cmcColor.color;
+        card.Power = power;
+        card.Toughness = toughness;
+        card.Cmc = cmc;
+        card.Color = color;
         card.Name = cellsInfo[0].TextContent.Trim();
         card.Type = GetSubstringAfterChar(cellsInfo[1].TextContent.Replace("\n", String.Empty), ':');
     }
     
-    private (List<string> keywords, string text) GetKeywordsAndText(IElement element)
+    private static (List<string> keywords, string text) GetKeywordsAndText(IElement element)
     {
-        var closeTag = element.InnerHtml.IndexOf('<');
+        int closeTag = element.InnerHtml.IndexOf('<');
         if (closeTag < 0)
         {
             return (new List<String>(), element.TextContent);
