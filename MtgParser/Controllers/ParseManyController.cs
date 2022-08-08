@@ -39,7 +39,7 @@ public class ParseManyController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogCritical("some general error " + e.Message + e.StackTrace);
+            _logger.LogCritical($"some general error {e.Message + Environment.NewLine + e.StackTrace}");
             return false;
         }
     }
@@ -56,7 +56,7 @@ public class ParseManyController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message + e.StackTrace);
+            _logger.LogError($"error on card {cardRequest.Name}  {cardRequest.SetShort} error {e.Message + Environment.NewLine + e.StackTrace}");
         }
     }
 }

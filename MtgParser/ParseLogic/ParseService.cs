@@ -35,7 +35,7 @@ public class ParseService
     {
         try
         {
-            IDocument doc = await GetCardInfo(cardName);
+            IDocument doc = await GetCardInfoAsync(cardName);
             Card result = ParseCard(doc);
             return result;
         }
@@ -55,7 +55,7 @@ public class ParseService
     {
         try
         {
-            IDocument doc = await GetCardInfo(cardName.Name ?? cardName.NameRus);
+            IDocument doc = await GetCardInfoAsync(cardName.Name ?? cardName.NameRus);
             CardSet result = ParseCardSet(doc, cardName);
             return result;
         }
@@ -66,7 +66,7 @@ public class ParseService
         }
     }
     
-    private async Task<IDocument> GetCardInfo(string cardName)
+    private async Task<IDocument> GetCardInfoAsync(string cardName)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         IAngleConfig config = Configuration.Default.WithDefaultLoader();
@@ -74,7 +74,7 @@ public class ParseService
         return await context.OpenAsync(_urlsConfig[MtgRuInConfig] + cardName);
     }
     
-    private async Task<IDocument> GetSetInfo(string cardVersion)
+    private async Task<IDocument> GetSetInfoAsync(string cardVersion)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         IAngleConfig config = Configuration.Default.WithDefaultLoader();
@@ -122,7 +122,7 @@ public class ParseService
 
         foreach (String cardVersion in cardVersions)
         {
-            Task<IDocument> docT = GetSetInfo(cardVersion);
+            Task<IDocument> docT = GetSetInfoAsync(cardVersion);
             docT.Wait();
             IHtmlCollection<IElement> cellsInfo = docT.Result.QuerySelectorAll(CellSelectorInfo);
             Set set = GetOrCreateSet(cellsInfo[0]);
@@ -161,7 +161,7 @@ public class ParseService
         }
         
         int separatorIndex = imgData.Title.IndexOf("//");
-        Set newSet = new Set()
+        Set newSet = new()
         {
             FullName = imgData.Title[..separatorIndex].Trim(),
             ShortName = imgData.AlternativeText,
