@@ -103,7 +103,7 @@ public class ParseService
         Card card = ParseCard(doc);
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
         
-        Set set = GetCardSet(fullCardInfo, cellsInfo[5]);
+        Set set = GetCardSet(fullCardInfo, cellsInfo);
         CardSet result = GetOrCreateCardSet(set, card);
         
         result.Quantity = fullCardInfo.Quantity;
@@ -115,9 +115,10 @@ public class ParseService
         return result;
     }
 
-    private Set GetCardSet(CardName cardName, IElement element)
+    private Set GetCardSet(CardName cardName, IHtmlCollection<IElement>  elements)
     {
-        IEnumerable<String> splitted = element.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => GetSubstringAfterChar(x, ','));
+        IElement manySetsInfo = elements[5];
+        IEnumerable<String> splitted = manySetsInfo.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => GetSubstringAfterChar(x, ','));
         IEnumerable<String> cardVersions = splitted.Select(x => x[..x.IndexOf(',')].Trim());
 
         foreach (String cardVersion in cardVersions)
@@ -131,8 +132,8 @@ public class ParseService
                 return set;
             }
         }
-
-        return null;
+        
+        return GetOrCreateSet(elements[0]);
     }
 
     private CardSet GetOrCreateCardSet(Set set, Card card)
