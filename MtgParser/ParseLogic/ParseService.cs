@@ -161,21 +161,28 @@ public class ParseService
             return set;
         }
         
-        int separatorIndex = imgData.Title.IndexOf("//");
         Set newSet = new()
         {
-            FullName = imgData.Title[..separatorIndex].Trim(),
             ShortName = imgData.AlternativeText,
             SetImg = imgData.Source
         };
         
-        newSet.SearchText = newSet.FullName.Replace(' ', '+');
-
-        String titlePart = imgData.Title[separatorIndex..].Trim('/', ' ');
-        if (newSet.FullName != titlePart)
+        int separatorIndex = imgData.Title.IndexOf("//");
+        if (separatorIndex < 0)
         {
-            newSet.RusName = titlePart;
+            newSet.FullName = imgData.Title;
         }
+        else
+        {
+            newSet.FullName = imgData.Title[..separatorIndex].Trim();
+            String rusPart = imgData.Title[separatorIndex..].Trim('/', ' ');
+            if (newSet.FullName != rusPart)
+            {
+                newSet.RusName = rusPart;
+            }
+        }
+
+        newSet.SearchText = newSet.FullName.Replace(' ', '+');
 
         _context.Sets.Add(newSet);
         _context.SaveChanges();
