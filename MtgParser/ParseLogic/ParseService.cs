@@ -101,6 +101,8 @@ public class ParseService
     private CardSet GetParsedCardSet(IDocument doc, CardName fullCardInfo)
     {
         Card card = GetParsedCard(doc);
+        card.IsRus = fullCardInfo.NameRus == null;
+        
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
         
         Set set = GetParsedSet(fullCardInfo, cellsInfo);
