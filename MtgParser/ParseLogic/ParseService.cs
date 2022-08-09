@@ -35,7 +35,7 @@ public class ParseService
     {
         try
         {
-            IDocument doc = await GetCardHtmlAsync(cardName);
+            IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + cardName);
             Card result = GetParsedCard(doc);
             return result;
         }
@@ -46,16 +46,12 @@ public class ParseService
         }
     }
     
-    public async Task<CardSet> GetCardSetAsync(string cardName, string setShortName)
-    {
-        return await GetCardSetAsync(new CardName() { Name = cardName, SetShort = setShortName });
-    }
-    
     public async Task<CardSet> GetCardSetAsync(CardName cardName)
     {
         try
         {
-            IDocument doc = await GetCardHtmlAsync(cardName.Name ?? cardName.NameRus);
+            String? setName = cardName.Name ?? cardName.NameRus;
+            IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + setName);
             CardSet result = GetParsedCardSet(doc, cardName);
             return result;
         }
@@ -66,22 +62,14 @@ public class ParseService
         }
     }
     
-    private async Task<IDocument> GetCardHtmlAsync(string cardName)
+    private async Task<IDocument> GetHtmlAsync(string path)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         IAngleConfig config = Configuration.Default.WithDefaultLoader();
         IBrowsingContext context = BrowsingContext.New(config);
-        return await context.OpenAsync(_urlsConfig[MtgRuInConfig] + cardName);
+        return await context.OpenAsync(path);
     }
-    
-    private async Task<IDocument> GetSetHtmlAsync(string cardVersion)
-    {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        IAngleConfig config = Configuration.Default.WithDefaultLoader();
-        IBrowsingContext context = BrowsingContext.New(config);
-        return await context.OpenAsync(_urlsConfig[MtgRuInfoTableConfig] + cardVersion);
-    }
-    
+
     public Card GetParsedCard(IDocument doc)
     {
         Card result = new ();
@@ -141,7 +129,7 @@ public class ParseService
 
         foreach (String cardVersion in cardVersions)
         {
-            Task<IDocument> docT = GetSetHtmlAsync(cardVersion);
+            Task<IDocument> docT = GetHtmlAsync(_urlsConfig[MtgRuInfoTableConfig] + cardVersion);
             docT.Wait();
             IHtmlCollection<IElement> cellsInfo = docT.Result.QuerySelectorAll(CellSelectorInfo);
             Set set = GetOrCreateSet(cellsInfo[0]);
