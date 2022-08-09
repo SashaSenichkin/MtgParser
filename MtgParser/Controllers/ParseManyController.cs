@@ -48,7 +48,7 @@ public class ParseManyController : ControllerBase
     {
         try
         {
-            CardSet cardSet = await _parseService.ParseOneCardSet(cardRequest);
+            CardSet cardSet = await _parseService.GetCardSetAsync(cardRequest);
             if (cardSet.Id == default)
             {
                 await _dbContext.CardsSets.AddAsync(cardSet);
