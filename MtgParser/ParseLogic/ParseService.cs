@@ -182,7 +182,7 @@ public class ParseService
             }
         }
 
-        newSet.SearchText = newSet.FullName.Replace(' ', '+');
+        newSet.SearchText = newSet.FullName.Replace(":", String.Empty).Replace(' ', '+');
 
         _context.Sets.Add(newSet);
         _context.SaveChanges();
