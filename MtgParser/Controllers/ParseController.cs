@@ -23,13 +23,13 @@ public class ParseController : ControllerBase
     [HttpGet(Name = "GetCardInfo")]
     public async Task<Card> GetCardInfo(string cardName)
     {
-        return await _parseService.ParseOneCard(cardName);
+        return await _parseService.GetCardAsync(cardName);
     }
     
     [HttpGet(Name = "GetCardSetInfo")]
     public async Task<CardSet> GetCardSetInfo(string cardName, string setShortName)
     {
-        return await _parseService.ParseOneCardSet(cardName, setShortName);
+        return await _parseService.GetCardSetAsync(new CardName() { Name = cardName, SetShort = setShortName} );
     }
     
     [HttpPost(Name = "PostToDb")]
@@ -37,7 +37,7 @@ public class ParseController : ControllerBase
     {
         try
         {
-            Card card = await _parseService.ParseOneCard(cardName);
+            Card card = await _parseService.GetCardAsync(cardName);
             await _dbContext.Cards.AddAsync(card);
             await _dbContext.SaveChangesAsync();
             return true;

@@ -68,7 +68,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Hazoret the Fervent.htm", context);
-        Card card = _parseService.ParseCard(doc);
+        Card card = _parseService.GetParsedCard(doc);
         
         Assert.AreEqual("4", card.Toughness);
         Assert.AreEqual("5", card.Power);
@@ -82,7 +82,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Gyrus Waker of Corpses.htm", context);
-        Card card = _parseService.ParseCard(doc);
+        Card card = _parseService.GetParsedCard(doc);
         
         Assert.AreEqual("0", card.Toughness);
         Assert.AreEqual("0", card.Power);
@@ -96,7 +96,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Infinity Elemental.htm", context);
-        Card card = _parseService.ParseCard(doc);
+        Card card = _parseService.GetParsedCard(doc);
         
         Assert.AreEqual("5", card.Toughness);
         Assert.AreEqual("/", card.Power);
@@ -110,7 +110,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("A Little Chat.htm", context);
-        Card card = _parseService.ParseCard(doc);
+        Card card = _parseService.GetParsedCard(doc);
         
         Assert.AreEqual("-", card.Toughness);
         Assert.AreEqual("-", card.Power);
@@ -124,7 +124,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Lucky Clove.htm", context);
-        Card card = _parseService.ParseCard(doc);
+        Card card = _parseService.GetParsedCard(doc);
         
         Assert.AreEqual("-", card.Toughness);
         Assert.AreEqual("-", card.Power);
@@ -138,7 +138,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Secluded Steppe.htm", context);
-        Card card = _parseService.ParseCard(doc);
+        Card card = _parseService.GetParsedCard(doc);
         
         Assert.AreEqual("-", card.Toughness);
         Assert.AreEqual("-", card.Power);
