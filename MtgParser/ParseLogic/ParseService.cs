@@ -190,15 +190,19 @@ public class ParseService
         (string power, string toughness) = GetPowerAndToughness(cellsInfo[3]);
 
         String cardTypePart = cellsInfo[1].TextContent.Replace("\n", String.Empty).Trim();
-        (String main, String substr)  = GetSeparateString(GetSubstringAfterChar(cardTypePart,':'));
+        (String main, String substr) typeSeparated = GetSeparateString(GetSubstringAfterChar(cardTypePart,':'));
+        
+        (String main, String substr) nameSeparated = GetSeparateString(cellsInfo[0].TextContent);
+
         
         card.Power = power;
         card.Toughness = toughness;
         card.Cmc = cmc;
         card.Color = color;
-        card.Name = cellsInfo[0].TextContent.Trim();
-        card.Type = main;
-        card.TypeRus = substr;
+        card.Name = nameSeparated.main;
+        card.NameRus = nameSeparated.substr;
+        card.Type = typeSeparated.main;
+        card.TypeRus = typeSeparated.substr;
     }
     
     private static (List<string> keywords, string text) GetKeywordsAndText(IElement element)
