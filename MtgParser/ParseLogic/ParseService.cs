@@ -156,21 +156,11 @@ public class ParseService
             ShortName = imgData.AlternativeText,
             SetImg = imgData.Source
         };
-        
-        int separatorIndex = imgData.Title.IndexOf("//");
-        if (separatorIndex < 0)
-        {
-            newSet.FullName = imgData.Title;
-        }
-        else
-        {
-            newSet.FullName = imgData.Title[..separatorIndex].Trim();
-            String rusPart = imgData.Title[separatorIndex..].Trim('/', ' ');
-            if (newSet.FullName != rusPart)
-            {
-                newSet.RusName = rusPart;
-            }
-        }
+
+        (String main, String substr) separated = GetSeparateString(imgData.Title);
+
+        newSet.FullName = separated.main;
+        newSet.RusName = separated.substr;
 
         newSet.SearchText = newSet.FullName.Replace(":", String.Empty).Replace(' ', '+');
 
@@ -199,12 +189,16 @@ public class ParseService
         (string cmc, string color) = GetManaCostAndColor(cellsInfo[2]);
         (string power, string toughness) = GetPowerAndToughness(cellsInfo[3]);
 
+        String cardTypePart = cellsInfo[1].TextContent.Replace("\n", String.Empty).Trim();
+        (String main, String substr)  = GetSeparateString(GetSubstringAfterChar(cardTypePart,':'));
+        
         card.Power = power;
         card.Toughness = toughness;
         card.Cmc = cmc;
         card.Color = color;
         card.Name = cellsInfo[0].TextContent.Trim();
-        card.Type = GetSubstringAfterChar(cellsInfo[1].TextContent.Replace("\n", String.Empty), ':');
+        card.Type = main;
+        card.TypeRus = substr;
     }
     
     private static (List<string> keywords, string text) GetKeywordsAndText(IElement element)
@@ -271,7 +265,20 @@ public class ParseService
     {
         return symbol.IsDigit() || symbol == 'X';
     }
-    
+
+    private static (string main, string substr) GetSeparateString(string source, string separator = "//")
+    {
+        int separatorIndex = source.IndexOf(separator);
+        if (separatorIndex < 0)
+        {
+            return (source, String.Empty);
+        }
+        
+        String left = source[..separatorIndex].Trim();
+        String right = source[separatorIndex..].Trim('/', ' ');
+        return left != right ? (left, right) : (left, String.Empty);
+    }
+
     private static string GetSubstringAfterChar(string text, params char[] separators)
     {
         for (int i = 0; i < text.Length; i++)
