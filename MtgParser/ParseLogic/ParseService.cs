@@ -31,12 +31,12 @@ public class ParseService
         _context = context;
     }
     
-    public async Task<Card> ParseOneCard(string cardName)
+    public async Task<Card> GetCardAsync(string cardName)
     {
         try
         {
-            IDocument doc = await GetCardInfoAsync(cardName);
-            Card result = ParseCard(doc);
+            IDocument doc = await GetCardHtmlAsync(cardName);
+            Card result = GetParsedCard(doc);
             return result;
         }
         catch (Exception e)
@@ -46,17 +46,17 @@ public class ParseService
         }
     }
     
-    public async Task<CardSet> ParseOneCardSet(string cardName, string setShortName)
+    public async Task<CardSet> GetCardSetAsync(string cardName, string setShortName)
     {
-        return await ParseOneCardSet(new CardName() { Name = cardName, SetShort = setShortName });
+        return await GetCardSetAsync(new CardName() { Name = cardName, SetShort = setShortName });
     }
     
-    public async Task<CardSet> ParseOneCardSet(CardName cardName)
+    public async Task<CardSet> GetCardSetAsync(CardName cardName)
     {
         try
         {
-            IDocument doc = await GetCardInfoAsync(cardName.Name ?? cardName.NameRus);
-            CardSet result = ParseCardSet(doc, cardName);
+            IDocument doc = await GetCardHtmlAsync(cardName.Name ?? cardName.NameRus);
+            CardSet result = GetParsedCardSet(doc, cardName);
             return result;
         }
         catch (Exception e)
@@ -66,7 +66,7 @@ public class ParseService
         }
     }
     
-    private async Task<IDocument> GetCardInfoAsync(string cardName)
+    private async Task<IDocument> GetCardHtmlAsync(string cardName)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         IAngleConfig config = Configuration.Default.WithDefaultLoader();
@@ -74,7 +74,7 @@ public class ParseService
         return await context.OpenAsync(_urlsConfig[MtgRuInConfig] + cardName);
     }
     
-    private async Task<IDocument> GetSetInfoAsync(string cardVersion)
+    private async Task<IDocument> GetSetHtmlAsync(string cardVersion)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         IAngleConfig config = Configuration.Default.WithDefaultLoader();
@@ -82,14 +82,14 @@ public class ParseService
         return await context.OpenAsync(_urlsConfig[MtgRuInfoTableConfig] + cardVersion);
     }
     
-    public Card ParseCard(IDocument doc)
+    public Card GetParsedCard(IDocument doc)
     {
-        Card result = new Card();
+        Card result = new ();
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
-        FillCardData(result, cellsInfo);
+        SetCardData(result, cellsInfo);
         
         IHtmlCollection<IElement> cellsText = doc.QuerySelectorAll(CellSelectorMain);
-        FillCardText(result, cellsText);
+        SetCardTextAndKeywords(result, cellsText);
         
         IHtmlCollection<IElement> fullTable = doc.QuerySelectorAll(FullTableInfo);
         IHtmlImageElement img = fullTable.First().QuerySelector("img") as IHtmlImageElement;
@@ -98,12 +98,12 @@ public class ParseService
         return result;
     }
     
-    private CardSet ParseCardSet(IDocument doc, CardName fullCardInfo)
+    private CardSet GetParsedCardSet(IDocument doc, CardName fullCardInfo)
     {
-        Card card = ParseCard(doc);
+        Card card = GetParsedCard(doc);
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
         
-        Set set = GetCardSet(fullCardInfo, cellsInfo);
+        Set set = GetParsedSet(fullCardInfo, cellsInfo);
         CardSet result = GetOrCreateCardSet(set, card);
         
         result.Quantity = fullCardInfo.Quantity;
@@ -113,27 +113,6 @@ public class ParseService
         result.Rarity = _context.Rarities.First(x => x.RusName == rarityText || x.Name == rarityText);
 
         return result;
-    }
-
-    private Set GetCardSet(CardName cardName, IHtmlCollection<IElement>  elements)
-    {
-        IElement manySetsInfo = elements[5];
-        IEnumerable<String> splitted = manySetsInfo.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => GetSubstringAfterChar(x, ','));
-        IEnumerable<String> cardVersions = splitted.Select(x => x[..x.IndexOf(',')].Trim());
-
-        foreach (String cardVersion in cardVersions)
-        {
-            Task<IDocument> docT = GetSetInfoAsync(cardVersion);
-            docT.Wait();
-            IHtmlCollection<IElement> cellsInfo = docT.Result.QuerySelectorAll(CellSelectorInfo);
-            Set set = GetOrCreateSet(cellsInfo[0]);
-            if (set.ShortName == cardName.SetShort)
-            {
-                return set;
-            }
-        }
-        
-        return GetOrCreateSet(elements[0]);
     }
 
     private CardSet GetOrCreateCardSet(Set set, Card card)
@@ -150,6 +129,27 @@ public class ParseService
             Set = set
         };
         return newCardSet;
+    }
+    
+    private Set GetParsedSet(CardName cardName, IHtmlCollection<IElement> elements)
+    {
+        IElement manySetsInfo = elements[5];
+        IEnumerable<String> splitted = manySetsInfo.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => GetSubstringAfterChar(x, ','));
+        IEnumerable<String> cardVersions = splitted.Select(x => x[..x.IndexOf(',')].Trim());
+
+        foreach (String cardVersion in cardVersions)
+        {
+            Task<IDocument> docT = GetSetHtmlAsync(cardVersion);
+            docT.Wait();
+            IHtmlCollection<IElement> cellsInfo = docT.Result.QuerySelectorAll(CellSelectorInfo);
+            Set set = GetOrCreateSet(cellsInfo[0]);
+            if (set.ShortName == cardName.SetShort)
+            {
+                return set;
+            }
+        }
+        
+        return GetOrCreateSet(elements[0]);
     }
 
     private Set GetOrCreateSet(IElement element)
@@ -189,7 +189,7 @@ public class ParseService
         return newSet;
     }
 
-    private void FillCardText(Card card, IHtmlCollection<IElement> cellsText)
+    private void SetCardTextAndKeywords(Card card, IHtmlCollection<IElement> cellsText)
     {
         (List<string> keywordsText, string text) = GetKeywordsAndText(cellsText[0]);
         List<Keyword> keywords = keywordsText.Select(x => _context.Keywords
@@ -204,7 +204,7 @@ public class ParseService
         card.Keywords = keywords;
     }
 
-    private static void FillCardData(Card card, IHtmlCollection<IElement> cellsInfo)
+    private static void SetCardData(Card card, IHtmlCollection<IElement> cellsInfo)
     {
         (string cmc, string color) = GetManaCostAndColor(cellsInfo[2]);
         (string power, string toughness) = GetPowerAndToughness(cellsInfo[3]);
@@ -234,18 +234,7 @@ public class ParseService
         
         return (keywordsResult, textResult);
     }
-
-    private static string GetSubstringAfterChar(string text, params char[] separators)
-    {
-        for (int i = 0; i < text.Length; i++)
-        {
-            if (separators.Contains(text[i]))
-                return text[(i+1)..];
-        }
-
-        return text.Trim();
-    }
-
+    
     private static (string power, string toughness) GetPowerAndToughness(IElement source)
     {
         string powerAndTough = GetSubstringAfterChar(source.TextContent, ':');
@@ -291,5 +280,16 @@ public class ParseService
     private static bool IsDigitOrX(char symbol)
     {
         return symbol.IsDigit() || symbol == 'X';
+    }
+    
+    private static string GetSubstringAfterChar(string text, params char[] separators)
+    {
+        for (int i = 0; i < text.Length; i++)
+        {
+            if (separators.Contains(text[i]))
+                return text[(i+1)..];
+        }
+
+        return text.Trim();
     }
 }
