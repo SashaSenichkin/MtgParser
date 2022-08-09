@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
@@ -24,11 +25,36 @@ public class ParseService
     
     private const string MtgRuInConfig = "BaseMtgRu";
     private const string MtgRuInfoTableConfig = "MtgRuInfoTable";
+    private const string GoldfishPriceConfig = "PriceApi";
 
     public ParseService(IConfiguration fullConfig, MtgContext context)
     {
         _urlsConfig = fullConfig.GetSection("ExternalUrls");
         _context = context;
+    }
+
+    public async Task<Price> GetPriceAsync(CardSet cardSet)
+    {
+        try
+        {
+            String searchCardName = cardSet.Card.Name.Replace(' ', '+');
+            IDocument doc = await GetHtmlAsync($"{_urlsConfig[GoldfishPriceConfig] + cardSet.Set.SearchText}/{searchCardName}" );
+            Price result = GetParsedPrice(doc);
+            if (result == null)
+            {
+                Console.WriteLine("Can't parse price data " + cardSet.Id );
+                throw new Exception();
+            }
+            
+            result.CardSet = cardSet;
+            return result;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
     }
     
     public async Task<Card> GetCardAsync(string cardName)
@@ -168,6 +194,27 @@ public class ParseService
         _context.SaveChanges();
         return newSet;
     }
+    
+    private static Price? GetParsedPrice(IDocument doc)
+    {
+        IElement? priceBox = doc.QuerySelector(".price-box-price");
+        String allDigits = GetSubstringAfterChar(priceBox.InnerHtml, ';');
+        
+        const NumberStyles style = NumberStyles.Number | NumberStyles.AllowCurrencySymbol;
+        CultureInfo provider = new ("en-GB");
+        
+        if (Decimal.TryParse(allDigits,style, provider, out Decimal price))
+        {
+            return new Price() 
+            {
+                Value = price, 
+                CreateDate = DateTime.Now
+            };
+        }
+
+        return null;
+    }
+
 
     private void SetCardTextAndKeywords(Card card, IHtmlCollection<IElement> cellsText)
     {
