@@ -1,1 +1,3 @@
-dotnet build MtgParser/MtgParser.csproj
+./dotnet-install.ps1
+
+dotnet build
