@@ -70,10 +70,10 @@ public class Tests
         IDocument doc = GetDocument("Hazoret the Fervent.htm", context);
         Card card = _parseService.GetParsedCard(doc);
         
-        Assert.AreEqual("4", card.Toughness);
-        Assert.AreEqual("5", card.Power);
-        Assert.AreEqual("4", card.Cmc);
-        Assert.AreEqual("R", card.Color);
+        Assert.That(card.Toughness, Is.EqualTo("4"));
+        Assert.That(card.Power, Is.EqualTo("5"));
+        Assert.That(card.Cmc, Is.EqualTo("4"));
+        Assert.That(card.Color, Is.EqualTo("R"));
     }
     
     [Test]
@@ -84,10 +84,10 @@ public class Tests
         IDocument doc = GetDocument("Gyrus Waker of Corpses.htm", context);
         Card card = _parseService.GetParsedCard(doc);
         
-        Assert.AreEqual("0", card.Toughness);
-        Assert.AreEqual("0", card.Power);
-        Assert.AreEqual("X, 3", card.Cmc);
-        Assert.AreEqual("B, R, G", card.Color);
+        Assert.That(card.Toughness, Is.EqualTo("0"));
+        Assert.That(card.Power, Is.EqualTo("0"));
+        Assert.That(card.Cmc, Is.EqualTo("X, 3"));
+        Assert.That(card.Color, Is.EqualTo("B, R, G"));
     }
     
     [Test]
@@ -98,10 +98,10 @@ public class Tests
         IDocument doc = GetDocument("Infinity Elemental.htm", context);
         Card card = _parseService.GetParsedCard(doc);
         
-        Assert.AreEqual("5", card.Toughness);
-        Assert.AreEqual("/", card.Power);
-        Assert.AreEqual("7", card.Cmc);
-        Assert.AreEqual("R", card.Color);
+        Assert.That(card.Toughness, Is.EqualTo("5"));
+        Assert.That(card.Power, Is.EqualTo("/"));
+        Assert.That(card.Cmc, Is.EqualTo("7"));
+        Assert.That(card.Color, Is.EqualTo("R"));
     }
     
     [Test]
@@ -112,10 +112,10 @@ public class Tests
         IDocument doc = GetDocument("A Little Chat.htm", context);
         Card card = _parseService.GetParsedCard(doc);
         
-        Assert.AreEqual("-", card.Toughness);
-        Assert.AreEqual("-", card.Power);
-        Assert.AreEqual("2", card.Cmc);
-        Assert.AreEqual("U", card.Color);
+        Assert.That(card.Toughness, Is.EqualTo("-"));
+        Assert.That(card.Power, Is.EqualTo("-"));
+        Assert.That(card.Cmc, Is.EqualTo("2"));
+        Assert.That(card.Color, Is.EqualTo("U"));
     }
     
     [Test]
@@ -126,10 +126,10 @@ public class Tests
         IDocument doc = GetDocument("Lucky Clove.htm", context);
         Card card = _parseService.GetParsedCard(doc);
         
-        Assert.AreEqual("-", card.Toughness);
-        Assert.AreEqual("-", card.Power);
-        Assert.AreEqual("2", card.Cmc);
-        Assert.AreEqual("-", card.Color);
+        Assert.That(card.Toughness, Is.EqualTo("-"));
+        Assert.That(card.Power, Is.EqualTo("-"));
+        Assert.That(card.Cmc, Is.EqualTo("2"));
+        Assert.That(card.Color, Is.EqualTo("-"));
     }
     
     [Test]
@@ -140,9 +140,9 @@ public class Tests
         IDocument doc = GetDocument("Secluded Steppe.htm", context);
         Card card = _parseService.GetParsedCard(doc);
         
-        Assert.AreEqual("-", card.Toughness);
-        Assert.AreEqual("-", card.Power);
-        Assert.AreEqual("0", card.Cmc);
-        Assert.AreEqual("-", card.Color);
+        Assert.That(card.Toughness, Is.EqualTo("-"));
+        Assert.That(card.Power, Is.EqualTo("-"));
+        Assert.That(card.Cmc, Is.EqualTo("0"));
+        Assert.That(card.Color, Is.EqualTo("-"));
     }
 }
