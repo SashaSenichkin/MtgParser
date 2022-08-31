@@ -24,6 +24,11 @@ public class PriceController : ControllerBase
         _dbContext = dbContext;
     }
 
+    /// <summary>
+    /// тестовое получение цены по физическому представлениею карты
+    /// </summary>
+    /// <param name="cardSetId">выбрать id из базы</param>
+    /// <returns>цена данной карты</returns>
     [HttpGet(Name = "GetPrice")]
     public async Task<ActionResult> GetPrice(int cardSetId)
     {
@@ -47,7 +52,7 @@ public class PriceController : ControllerBase
         catch (Exception e)
         {
             _logger.LogCritical($"GetPrice error {e.Message + Environment.NewLine + e.StackTrace}");
-            throw;
+            return new BadRequestResult();
         }
     }
 

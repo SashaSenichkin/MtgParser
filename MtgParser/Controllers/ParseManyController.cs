@@ -23,6 +23,10 @@ public class ParseManyController : ControllerBase
         _dbContext = dbContext;
     }
 
+    /// <summary>
+    /// проходится по всем записям в таблице CardNames, пытается получить информацию с сайтов и сохранить в нашем виде
+    /// </summary>
+    /// <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
     [HttpPost(Name = "PostMany")]
     public async Task<bool> PostToDb()
     {
