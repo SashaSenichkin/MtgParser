@@ -37,9 +37,10 @@ public class ParseService
     {
         try
         {
-            String searchCardName = cardSet.Card.Name.Replace(' ', '+');
+            string searchCardName = cardSet.Card.Name.Replace(' ', '+');
             IDocument doc = await GetHtmlAsync($"{_urlsConfig[GoldfishPriceConfig] + cardSet.Set.SearchText}/{searchCardName}" );
-            Price result = GetParsedPrice(doc);
+ 
+            Price? result = GetParsedPrice(doc);
             if (result == null)
             {
                 Console.WriteLine("Can't parse price data " + cardSet.Id );
@@ -76,7 +77,7 @@ public class ParseService
     {
         try
         {
-            String? setName = cardName.Name ?? cardName.NameRus;
+            string? setName = cardName.Name ?? cardName.NameRus;
             IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + setName);
             CardSet result = GetParsedCardSet(doc, cardName);
             return result;
@@ -106,8 +107,10 @@ public class ParseService
         SetCardTextAndKeywords(result, cellsText);
         
         IHtmlCollection<IElement> fullTable = doc.QuerySelectorAll(FullTableInfo);
-        IHtmlImageElement img = fullTable.First().QuerySelector("img") as IHtmlImageElement;
-        result.Img = img.Source.Replace("_middle", "");
+        if (fullTable.First().QuerySelector("img") is IHtmlImageElement img)
+        {
+            result.Img = img.Source.Replace("_middle", "");
+        }
 
         return result;
     }
@@ -125,7 +128,7 @@ public class ParseService
         result.Quantity = fullCardInfo.Quantity;
         result.IsFoil = (byte)(fullCardInfo.IsFoil ? 1 : 0);
         
-        string rarityText = GetSubstringAfterChar(cellsInfo[4].TextContent, '-').Trim();
+        string rarityText = GetSubStringAfterChar(cellsInfo[4].TextContent, '-').Trim();
         result.Rarity = _context.Rarities.First(x => x.RusName == rarityText || x.Name == rarityText);
 
         return result;
@@ -133,8 +136,8 @@ public class ParseService
 
     private CardSet GetOrCreateCardSet(Set set, Card card)
     {
-        CardSet result = _context.CardsSets.FirstOrDefault(x => x.Set.Equals(set) && x.Card == card);
-        if (result!= null)
+        CardSet? result = _context.CardsSets.FirstOrDefault(x => x.Set.Equals(set) && x.Card == card);
+        if (result != null)
         {
             return result;
         }
@@ -150,10 +153,10 @@ public class ParseService
     private Set GetParsedSet(CardName cardName, IHtmlCollection<IElement> elements)
     {
         IElement manySetsInfo = elements[5];
-        IEnumerable<String> splitted = manySetsInfo.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => GetSubstringAfterChar(x, ','));
-        IEnumerable<String> cardVersions = splitted.Select(x => x[..x.IndexOf(',')].Trim());
+        IEnumerable<string> splinted = manySetsInfo.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => GetSubStringAfterChar(x, ','));
+        IEnumerable<string> cardVersions = splinted.Select(x => x[..x.IndexOf(',')].Trim());
 
-        foreach (String cardVersion in cardVersions)
+        foreach (string cardVersion in cardVersions)
         {
             Task<IDocument> docT = GetHtmlAsync(_urlsConfig[MtgRuInfoTableConfig] + cardVersion);
             docT.Wait();
@@ -170,11 +173,17 @@ public class ParseService
 
     private Set GetOrCreateSet(IElement element)
     {
-        IHtmlImageElement imgData = (IHtmlImageElement) element.QuerySelector("img")!;
+        IHtmlImageElement? imgData = element.QuerySelector("img") as IHtmlImageElement;
+        
         Set? set = _context.Sets.FirstOrDefault(x => x.ShortName == imgData.AlternativeText);
         if (set != null)
         {
             return set;
+        }
+        
+        if (imgData.AlternativeText == null || imgData.Source == null)
+        {
+            throw new Exception($"can't create set.. not enough data in " + element);
         }
         
         Set newSet = new()
@@ -183,12 +192,12 @@ public class ParseService
             SetImg = imgData.Source
         };
 
-        (String main, String substr) separated = GetSeparateString(imgData.Title);
+        (string main, string substr) = GetSeparateString(imgData.Title);
 
-        newSet.FullName = separated.main;
-        newSet.RusName = separated.substr;
+        newSet.FullName = main;
+        newSet.RusName = substr;
 
-        newSet.SearchText = newSet.FullName.Replace(":", String.Empty).Replace(' ', '+');
+        newSet.SearchText = newSet.FullName.Replace(":", string.Empty).Replace(' ', '+');
 
         _context.Sets.Add(newSet);
         _context.SaveChanges();
@@ -198,12 +207,12 @@ public class ParseService
     private static Price? GetParsedPrice(IDocument doc)
     {
         IElement? priceBox = doc.QuerySelector(".price-box-price");
-        String allDigits = GetSubstringAfterChar(priceBox.InnerHtml, ';');
+        string allDigits = GetSubStringAfterChar(priceBox.InnerHtml, ';');
         
         const NumberStyles style = NumberStyles.Number | NumberStyles.AllowCurrencySymbol;
         CultureInfo provider = new ("en-GB");
         
-        if (Decimal.TryParse(allDigits,style, provider, out Decimal price))
+        if (decimal.TryParse(allDigits,style, provider, out decimal price))
         {
             return new Price() 
             {
@@ -221,12 +230,12 @@ public class ParseService
         (List<string> keywordsText, string text) = GetKeywordsAndText(cellsText[0]);
         List<Keyword> keywords = keywordsText.Select(x => _context.Keywords
                 .FirstOrDefault(y => x.Contains(y.Name) || y.RusName == x))
-            .Where(x => x != null)
-            .ToList()!;
+                .Where(x => x != null)
+                .ToList()!;
         
         bool isRusCard = cellsText.Length > 1;
         card.Text = text;
-        card.TextRus = isRusCard ? cellsText[1].TextContent : String.Empty;
+        card.TextRus = isRusCard ? cellsText[1].TextContent : string.Empty;
         card.IsRus = isRusCard;
         card.Keywords = keywords;
     }
@@ -236,20 +245,20 @@ public class ParseService
         (string cmc, string color) = GetManaCostAndColor(cellsInfo[2]);
         (string power, string toughness) = GetPowerAndToughness(cellsInfo[3]);
 
-        String cardTypePart = cellsInfo[1].TextContent.Replace("\n", String.Empty).Trim();
-        (String main, String substr) typeSeparated = GetSeparateString(GetSubstringAfterChar(cardTypePart,':'));
+        string cardTypePart = cellsInfo[1].TextContent.Replace("\n", string.Empty).Trim();
+        (string typeMain, string typeSubstr) = GetSeparateString(GetSubStringAfterChar(cardTypePart,':'));
         
-        (String main, String substr) nameSeparated = GetSeparateString(cellsInfo[0].TextContent);
+        (string nameMain, string nameSubstr) = GetSeparateString(cellsInfo[0].TextContent);
 
         
         card.Power = power;
         card.Toughness = toughness;
         card.Cmc = cmc;
         card.Color = color;
-        card.Name = nameSeparated.main;
-        card.NameRus = nameSeparated.substr;
-        card.Type = typeSeparated.main;
-        card.TypeRus = typeSeparated.substr;
+        card.Name = nameMain;
+        card.NameRus = nameSubstr;
+        card.Type = typeMain;
+        card.TypeRus = typeSubstr;
     }
     
     private static (List<string> keywords, string text) GetKeywordsAndText(IElement element)
@@ -257,7 +266,7 @@ public class ParseService
         int closeTag = element.InnerHtml.IndexOf('<');
         if (closeTag < 0)
         {
-            return (new List<String>(), element.TextContent);
+            return (new List<string>(), element.TextContent);
         }
         
         string allKeywords = element.InnerHtml[..closeTag];
@@ -272,7 +281,7 @@ public class ParseService
     
     private static (string power, string toughness) GetPowerAndToughness(IElement source)
     {
-        string powerAndTough = GetSubstringAfterChar(source.TextContent, ':');
+        string powerAndTough = GetSubStringAfterChar(source.TextContent, ':');
         int separator = powerAndTough.IndexOf('/');
         if (separator < 0)
         {
@@ -286,24 +295,24 @@ public class ParseService
     {
         List<string> allData = source.QuerySelectorAll(".Mana")
                                      .Select(x => (x as IHtmlImageElement)?.AlternativeText)
-                                     .Where(x => !String.IsNullOrEmpty(x))
+                                     .Where(x => !string.IsNullOrEmpty(x))
                                      .ToList()!;
 
         List<string> allColorData = allData.Where(x => x.All(y => !IsDigitOrX(y))).ToList();
         
-        String color = String.Join(", ", allColorData.Distinct());
-        if (String.IsNullOrWhiteSpace(color))
+        string color = string.Join(", ", allColorData.Distinct());
+        if (string.IsNullOrWhiteSpace(color))
         {
             color = "-";
         }
         
-        Boolean isHaveAnyX = allData.Any(x => x[0] == 'X');
+        bool isHaveAnyX = allData.Any(x => x[0] == 'X');
 
         int cmc = allColorData.Count;
-        if (Int32.TryParse(allData.FirstOrDefault(x => x.All(y => y.IsDigit())), out int digit))
+        if (int.TryParse(allData.FirstOrDefault(x => x.All(y => y.IsDigit())), out int digit))
             cmc += digit;
 
-        string cmcResult = isHaveAnyX ? "X" : String.Empty;
+        string cmcResult = isHaveAnyX ? "X" : string.Empty;
         if (!string.IsNullOrEmpty(cmcResult))
             cmcResult += ", ";
             
@@ -317,20 +326,25 @@ public class ParseService
         return symbol.IsDigit() || symbol == 'X';
     }
 
-    private static (string main, string substr) GetSeparateString(string source, string separator = "//")
+    private static (string main, string substr) GetSeparateString(string? source, string separator = "//")
     {
-        int separatorIndex = source.IndexOf(separator);
-        if (separatorIndex < 0)
+        if (string.IsNullOrEmpty(source))
         {
-            return (source, String.Empty);
+            throw new ArgumentException("source can't be null");
         }
         
-        String left = source[..separatorIndex].Trim();
-        String right = source[separatorIndex..].Trim('/', ' ');
-        return left != right ? (left, right) : (left, String.Empty);
+        int separatorIndex = source.IndexOf(separator, StringComparison.Ordinal);
+        if (separatorIndex < 0)
+        {
+            return (source, string.Empty);
+        }
+        
+        string left = source[..separatorIndex].Trim();
+        string right = source[separatorIndex..].Trim('/', ' ');
+        return left != right ? (left, right) : (left, string.Empty);
     }
 
-    private static string GetSubstringAfterChar(string text, params char[] separators)
+    private static string GetSubStringAfterChar(string text, params char[] separators)
     {
         for (int i = 0; i < text.Length; i++)
         {
