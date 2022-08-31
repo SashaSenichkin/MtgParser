@@ -38,8 +38,8 @@ app.MapControllers();
 app.Run();
 
 
-void CheckAndUpdateDb(IApplicationBuilder app)
+void CheckAndUpdateDb(IApplicationBuilder iApp)
 {
-    using IServiceScope scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+    using IServiceScope scope = iApp.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
     scope.ServiceProvider.GetService<MtgContext>()?.Database.Migrate();
 }
