@@ -61,7 +61,6 @@ public class ParseService
             Console.WriteLine(e);
             throw;
         }
-
     }
     
     public async Task<Card> GetCardAsync(string cardName)
@@ -213,6 +212,11 @@ public class ParseService
     private static Price? GetParsedPrice(IDocument doc)
     {
         IElement? priceBox = doc.QuerySelector(".price-box-price");
+        if (priceBox == null)
+        {
+            return null;
+        }
+        
         string allDigits = GetSubStringAfterChar(priceBox.InnerHtml, ';');
         
         const NumberStyles style = NumberStyles.Number | NumberStyles.AllowCurrencySymbol;

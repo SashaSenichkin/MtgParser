@@ -56,19 +56,40 @@ public class PriceController : ControllerBase
         }
     }
 
-    private async Task ProcessOneCardName(CardName cardRequest)
+
+    [HttpPost(Name = "FillPrices")]
+    public async Task<ActionResult> FillPrices()
     {
         try
         {
-            CardSet cardSet = await _parseService.GetCardSetAsync(cardRequest);
-            if (cardSet.Id == default)
+            List<CardSet> source = _dbContext.CardsSets.Include(x => x.Card)
+                                                       .Include(x => x.Set)
+                                                       .Include(x => x.Prices)
+                                                       .ToList();
+
+            foreach (CardSet cardRequest in source)
             {
-                await _dbContext.CardsSets.AddAsync(cardSet);
+                try
+                {
+                    Price price = await _parseService.GetPriceAsync(cardRequest);
+                    if (cardRequest.Prices.MaxBy(x => x.CreateDate)?.Value != price.Value)
+                    {
+                        _dbContext.Prices.Add(price);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"can't find price for card {cardRequest.Card.Name} set {cardRequest.Set.ShortName} ");
+                }
             }
+            
+            await _dbContext.SaveChangesAsync();
+            return new OkResult();
         }
         catch (Exception e)
         {
-            _logger.LogError($"error on card {cardRequest.Name}  {cardRequest.SetShort} error {e.Message + Environment.NewLine + e.StackTrace}");
+            _logger.LogCritical($"FillPrices error {e.Message + Environment.NewLine + e.StackTrace}");
+            return new BadRequestResult();
         }
     }
 }
