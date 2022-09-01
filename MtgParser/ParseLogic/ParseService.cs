@@ -33,6 +33,12 @@ public class ParseService
         _context = context;
     }
 
+    /// <summary>
+    /// Получение цены для физической карты
+    /// </summary>
+    /// <param name="cardSet">ссылка на физическую карту. фактически, достаточно названия и аббревиатуры сета</param>
+    /// <returns>цена карты</returns>
+    /// <exception cref="Exception">полученные исключение просто перебрасываются выше, с выводом в консоль</exception>
     public async Task<Price> GetPriceAsync(CardSet cardSet)
     {
         try

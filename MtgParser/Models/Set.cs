@@ -30,6 +30,11 @@ public class Set : BaseModel
     /// </summary>
     public string SetImg { get; set; }
     
+    /// <summary>
+    /// совпадение аббревиатуры - необходимое и достаточное условие равенства сетов.. можно было сделать первычным ключом..
+    /// </summary>
+    /// <param name="obj">другой сет, для сравнения</param>
+    /// <returns>одинаковость объектов</returns>
     public override Boolean Equals(Object? obj)
     {
         return ShortName == (obj as Set)?.ShortName;
