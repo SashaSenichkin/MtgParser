@@ -15,10 +15,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
         
 builder.Host.UseSerilog((context, services, configuration) => configuration
-    .ReadFrom.Configuration(context.Configuration)
-    .ReadFrom.Services(services)
-    .Enrich.FromLogContext()
-    .WriteTo.Console());
+       .ReadFrom.Configuration(context.Configuration)
+       .ReadFrom.Services(services)
+       .Enrich.FromLogContext()
+       .WriteTo.Console());
         
 builder.Services.AddScoped<ParseService>();
 
@@ -28,7 +28,8 @@ builder.Services.AddDbContext<MtgContext>(options => options.UseMySql(connection
         
 WebApplication app = builder.Build();
         
-CheckAndUpdateDb(app);
+using IServiceScope scope = (app as IApplicationBuilder).ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+scope.ServiceProvider.GetService<MtgContext>()?.Database.Migrate();
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -36,10 +37,3 @@ app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
-
-
-void CheckAndUpdateDb(IApplicationBuilder iApp)
-{
-    using IServiceScope scope = iApp.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-    scope.ServiceProvider.GetService<MtgContext>()?.Database.Migrate();
-}
