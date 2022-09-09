@@ -11,12 +11,12 @@ namespace MtgParser.Controllers;
 [Route("[controller]/[action]")]
 public class ParseController : ControllerBase
 {
-    private readonly ParseService _parseService;
+    private readonly ParseCardSet _parseCardSet;
     private readonly MtgContext _dbContext;
     
-    public ParseController(MtgContext dbContext, ParseService parseService)
+    public ParseController(MtgContext dbContext, ParseCardSet parseCardSet)
     {
-        _parseService = parseService;
+        _parseCardSet = parseCardSet;
         _dbContext = dbContext;
     }
     
@@ -28,7 +28,7 @@ public class ParseController : ControllerBase
     [HttpGet(Name = "GetCardInfo")]
     public async Task<Card> GetCardInfo(string cardName)
     {
-        return await _parseService.GetCardAsync(cardName);
+        return await _parseCardSet.GetCardAsync(cardName);
     }
     
     /// <summary>
@@ -40,7 +40,7 @@ public class ParseController : ControllerBase
     [HttpGet(Name = "GetCardSetInfo")]
     public async Task<CardSet> GetCardSetInfo(string cardName, string setShortName)
     {
-        return await _parseService.GetCardSetAsync(new CardName() { Name = cardName, SetShort = setShortName} );
+        return await _parseCardSet.GetCardSetAsync(new CardName() { Name = cardName, SetShort = setShortName} );
     }
     
     /// <summary>
@@ -53,7 +53,7 @@ public class ParseController : ControllerBase
     {
         try
         {
-            Card card = await _parseService.GetCardAsync(cardName);
+            Card card = await _parseCardSet.GetCardAsync(cardName);
             await _dbContext.Cards.AddAsync(card);
             await _dbContext.SaveChangesAsync();
             return true;
