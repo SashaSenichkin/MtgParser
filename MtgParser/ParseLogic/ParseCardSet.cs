@@ -95,7 +95,8 @@ public class ParseCardSet : BaseParser
         result.IsFoil = (byte)(fullCardInfo.IsFoil ? 1 : 0);
         
         string rarityText = BaseParser.GetSubStringAfterChar(cellsInfo[4].TextContent, '-').Trim();
-        result.Rarity = _context.Rarities.First(x => x.RusName == rarityText || x.Name == rarityText);
+        result.Rarity = _context.Rarities.First(x => x.RusName.Equals(rarityText, StringComparison.InvariantCultureIgnoreCase) 
+                                                       || x.Name.Equals(rarityText, StringComparison.InvariantCultureIgnoreCase));
 
         return result;
     }
@@ -158,7 +159,7 @@ public class ParseCardSet : BaseParser
             SetImg = imgData.Source
         };
 
-        (string main, string substr) = BaseParser.GetSeparateString(imgData.Title);
+        (string main, string substr) = GetSeparateString(imgData.Title);
 
         newSet.FullName = main;
         newSet.RusName = substr;
@@ -176,7 +177,7 @@ public class ParseCardSet : BaseParser
     {
         (List<string> keywordsText, string text) = GetKeywordsAndText(cellsText[0]);
         List<Keyword> keywords = keywordsText.Select(x => _context.Keywords
-                .FirstOrDefault(y => x.Contains(y.Name) || y.RusName == x))
+                .FirstOrDefault(y => x.Contains(y.Name, StringComparison.InvariantCultureIgnoreCase) || y.RusName == x))
             .Where(x => x != null)
             .ToList()!;
         
@@ -267,11 +268,5 @@ public class ParseCardSet : BaseParser
 
         return (cmcResult, color);
     }
-
-    private static bool IsDigitOrX(char symbol)
-    {
-        return symbol.IsDigit() || symbol == 'X';
-    }
-    
     #endregion
 }

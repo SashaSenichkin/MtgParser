@@ -29,7 +29,7 @@ namespace MtgParser.Migrations
                     { 14, "Protection", "Защита" },
                     { 15, "Prowess", "Искусность" },
                     { 16, "Reach", "Захват" },
-                    { 17, "Trample", "" },
+                    { 17, "Trample", "Топтать" },
                     { 18, "Vigilance", "Бдительность" }
                 });
 
@@ -38,11 +38,11 @@ namespace MtgParser.Migrations
                 columns: new[] { "Id", "Name", "RusName" },
                 values: new object[,]
                 {
-                    { 1, "common", "обычная" },
-                    { 2, "uncommon", "необычная" },
-                    { 3, "rare", "редкая" },
-                    { 4, "mythic", "раритетная" },
-                    { 5, "special", "специальная" }
+                    { 1, "Common", "Обычная" },
+                    { 2, "Uncommon", "Необычная" },
+                    { 3, "Rare", "Редкая" },
+                    { 4, "Mythic", "Раритетная" },
+                    { 5, "Special", "Специальная" }
                 });
         }
 

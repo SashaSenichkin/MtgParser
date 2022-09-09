@@ -324,32 +324,32 @@ namespace MtgParser.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "common",
-                            RusName = "обычная"
+                            Name = "Common",
+                            RusName = "Обычная"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "uncommon",
-                            RusName = "необычная"
+                            Name = "Uncommon",
+                            RusName = "Необычная"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "rare",
-                            RusName = "редкая"
+                            Name = "Rare",
+                            RusName = "Редкая"
                         },
                         new
                         {
                             Id = 4,
-                            Name = "mythic",
-                            RusName = "раритетная"
+                            Name = "Mythic",
+                            RusName = "Раритетная"
                         },
                         new
                         {
                             Id = 5,
-                            Name = "special",
-                            RusName = "специальная"
+                            Name = "Special",
+                            RusName = "Специальная"
                         });
                 });
 
