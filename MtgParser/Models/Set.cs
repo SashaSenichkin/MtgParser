@@ -35,7 +35,7 @@ public class Set : BaseModel
     /// </summary>
     /// <param name="obj">другой сет, для сравнения</param>
     /// <returns>одинаковость объектов</returns>
-    public override Boolean Equals(Object? obj)
+    public override bool Equals(object? obj)
     {
         return ShortName == (obj as Set)?.ShortName;
     }

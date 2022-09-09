@@ -42,7 +42,7 @@ public class PriceController : ControllerBase
 
             if (cardSet == null)
             {
-                _logger.LogError($"can't find cardSet by id {cardSetId}");
+                _logger.LogError("can't find cardSet by id {SetId}", cardSetId);
                 return new BadRequestResult();
             }
 
@@ -51,7 +51,7 @@ public class PriceController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogCritical($"GetPrice error {e.Message + Environment.NewLine + e.StackTrace}");
+            _logger.LogCritical("GetPrice error {Message}", e.Message + Environment.NewLine + e.StackTrace);
             return new BadRequestResult();
         }
     }
@@ -79,7 +79,9 @@ public class PriceController : ControllerBase
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError($"can't find price for card {cardRequest.Card.Name} set {cardRequest.Set.ShortName} ");
+                    _logger.LogError("can't find price for card {Card} set {Set} ", 
+                                    cardRequest.Card.Name, 
+                                    cardRequest.Set.ShortName);
                 }
             }
             
@@ -88,7 +90,7 @@ public class PriceController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogCritical($"FillPrices error {e.Message + Environment.NewLine + e.StackTrace}");
+            _logger.LogCritical("FillPrices error {Message}", e.Message + Environment.NewLine + e.StackTrace);
             return new BadRequestResult();
         }
     }
