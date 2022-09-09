@@ -51,6 +51,16 @@ public class ParseCardSet : BaseParser
     {
         try
         {
+            Card? storedCard = _context.Cards.FirstOrDefault(x => x.Name.Equals(cardName.Name, StringComparison.InvariantCultureIgnoreCase)
+                                                                   || x.NameRus.Equals(cardName.NameRus, StringComparison.InvariantCultureIgnoreCase));
+            
+            Set? storedSet = _context.Sets.FirstOrDefault(x => x.ShortName.Equals(cardName.SetShort, StringComparison.InvariantCultureIgnoreCase));
+
+            if (storedCard != null && storedSet != null)
+            {
+                return GetOrCreateCardSet(storedSet, storedCard);
+            }
+            
             string? setName = cardName.Name ?? cardName.NameRus;
             IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + setName);
             CardSet result = GetParsedCardSet(doc, cardName);
@@ -69,6 +79,13 @@ public class ParseCardSet : BaseParser
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
         SetCardData(result, cellsInfo);
         
+        Card? storedCard = _context.Cards.FirstOrDefault(x => x.Name.Equals(result.Name, StringComparison.InvariantCultureIgnoreCase)
+                                                               || x.NameRus.Equals(result.NameRus, StringComparison.InvariantCultureIgnoreCase));
+        if (storedCard != null)
+        {
+            return storedCard;
+        }
+
         IHtmlCollection<IElement> cellsText = doc.QuerySelectorAll(CellSelectorMain);
         SetCardTextAndKeywords(result, cellsText);
         
@@ -94,7 +111,7 @@ public class ParseCardSet : BaseParser
         result.Quantity = fullCardInfo.Quantity;
         result.IsFoil = (byte)(fullCardInfo.IsFoil ? 1 : 0);
         
-        string rarityText = BaseParser.GetSubStringAfterChar(cellsInfo[4].TextContent, '-').Trim();
+        string rarityText = GetSubStringAfterChar(cellsInfo[4].TextContent, '-').Trim();
         result.Rarity = _context.Rarities.First(x => x.RusName.Equals(rarityText, StringComparison.InvariantCultureIgnoreCase) 
                                                        || x.Name.Equals(rarityText, StringComparison.InvariantCultureIgnoreCase));
 
@@ -120,7 +137,7 @@ public class ParseCardSet : BaseParser
     private Set GetParsedSet(CardName cardName, IHtmlCollection<IElement> elements)
     {
         IElement manySetsInfo = elements[5];
-        IEnumerable<string> splinted = manySetsInfo.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => BaseParser.GetSubStringAfterChar(x, ','));
+        IEnumerable<string> splinted = manySetsInfo.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => GetSubStringAfterChar(x, ','));
         IEnumerable<string> cardVersions = splinted.Select(x => x[..x.IndexOf(',')].Trim());
 
         foreach (string cardVersion in cardVersions)
@@ -194,9 +211,9 @@ public class ParseCardSet : BaseParser
         (string power, string toughness) = GetPowerAndToughness(cellsInfo[3]);
 
         string cardTypePart = cellsInfo[1].TextContent.Replace("\n", string.Empty).Trim();
-        (string typeMain, string typeSubstr) = BaseParser.GetSeparateString(BaseParser.GetSubStringAfterChar(cardTypePart,':'));
+        (string typeMain, string typeSubstr) = GetSeparateString(GetSubStringAfterChar(cardTypePart,':'));
         
-        (string nameMain, string nameSubstr) = BaseParser.GetSeparateString(cellsInfo[0].TextContent);
+        (string nameMain, string nameSubstr) = GetSeparateString(cellsInfo[0].TextContent);
 
         
         card.Power = power;
@@ -229,7 +246,7 @@ public class ParseCardSet : BaseParser
     
     private static (string power, string toughness) GetPowerAndToughness(IElement source)
     {
-        string powerAndTough = BaseParser.GetSubStringAfterChar(source.TextContent, ':');
+        string powerAndTough = GetSubStringAfterChar(source.TextContent, ':');
         int separator = powerAndTough.IndexOf('/');
         if (separator < 0)
         {
