@@ -29,7 +29,7 @@ namespace MtgParser.Migrations
                     { 14, "Protection", "Защита" },
                     { 15, "Prowess", "Искусность" },
                     { 16, "Reach", "Захват" },
-                    { 17, "Trample", "Топтать" },
+                    { 17, "Trample", "Пробивной удар" },
                     { 18, "Vigilance", "Бдительность" }
                 });
 

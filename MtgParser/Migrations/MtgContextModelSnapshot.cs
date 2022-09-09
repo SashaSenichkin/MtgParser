@@ -270,7 +270,7 @@ namespace MtgParser.Migrations
                         {
                             Id = 17,
                             Name = "Trample",
-                            RusName = ""
+                            RusName = "Пробивной удар"
                         },
                         new
                         {
