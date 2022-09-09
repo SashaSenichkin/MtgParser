@@ -21,11 +21,11 @@ public class MtgContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Rarity>().HasData
         (
-            new Rarity { Id = 1, Name = "common", RusName = "обычная"},
-            new Rarity { Id = 2, Name = "uncommon", RusName = "необычная"},
-            new Rarity { Id = 3, Name = "rare", RusName = "редкая"},
-            new Rarity { Id = 4, Name = "mythic", RusName = "раритетная"},
-            new Rarity { Id = 5, Name = "special", RusName = "специальная"}
+            new Rarity { Id = 1, Name = "Common", RusName = "Обычная"},
+            new Rarity { Id = 2, Name = "Uncommon", RusName = "Необычная"},
+            new Rarity { Id = 3, Name = "Rare", RusName = "Редкая"},
+            new Rarity { Id = 4, Name = "Mythic", RusName = "Раритетная"},
+            new Rarity { Id = 5, Name = "Special", RusName = "Специальная"}
         );
         
         modelBuilder.Entity<Keyword>().HasData
