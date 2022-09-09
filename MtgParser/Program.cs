@@ -21,6 +21,7 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
        .WriteTo.Console());
         
 builder.Services.AddScoped<ParseCardSet>();
+builder.Services.AddScoped<ParsePrice>();
 
 string? connectionString = builder.Configuration.GetConnectionString("MtgContext");
 ServerVersion? version = ServerVersion.AutoDetect(connectionString);

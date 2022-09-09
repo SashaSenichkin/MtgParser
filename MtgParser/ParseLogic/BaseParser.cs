@@ -6,6 +6,11 @@ namespace MtgParser.ParseLogic;
 
 public abstract class BaseParser
 {
+    protected static bool IsDigitOrX(char symbol)
+    {
+        return char.IsDigit(symbol) || symbol == 'X';
+    }
+    
     protected static (string main, string substr) GetSeparateString(string? source, string separator = "//")
     {
         if (string.IsNullOrEmpty(source))
