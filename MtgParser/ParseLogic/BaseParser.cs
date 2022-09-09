@@ -4,13 +4,9 @@ using AngleSharp.Dom;
 
 namespace MtgParser.ParseLogic;
 
-public class BaseParser
+public abstract class BaseParser
 {
-    public BaseParser()
-    {
-    }
-
-    public static (string main, string substr) GetSeparateString(string? source, string separator = "//")
+    protected static (string main, string substr) GetSeparateString(string? source, string separator = "//")
     {
         if (string.IsNullOrEmpty(source))
         {
@@ -28,7 +24,7 @@ public class BaseParser
         return left != right ? (left, right) : (left, string.Empty);
     }
 
-    public async Task<IDocument> GetHtmlAsync(string path)
+    protected static async Task<IDocument> GetHtmlAsync(string path)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         IConfiguration config = Configuration.Default.WithDefaultLoader();
@@ -36,7 +32,7 @@ public class BaseParser
         return await context.OpenAsync(path);
     }
 
-    public static string GetSubStringAfterChar(string text, params char[] separators)
+    protected static string GetSubStringAfterChar(string text, params char[] separators)
     {
         for (int i = 0; i < text.Length; i++)
         {

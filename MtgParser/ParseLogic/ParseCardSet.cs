@@ -14,7 +14,7 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace MtgParser.ParseLogic;
 
-public class ParseService
+public class ParseCardSet : BaseParser
 {
     private readonly IConfigurationSection _urlsConfig;
     private readonly MtgContext _context;
@@ -25,44 +25,13 @@ public class ParseService
     
     private const string MtgRuInConfig = "BaseMtgRu";
     private const string MtgRuInfoTableConfig = "MtgRuInfoTable";
-    private const string GoldfishPriceConfig = "PriceApi";
 
-    public ParseService(IConfiguration fullConfig, MtgContext context)
+    public ParseCardSet(IConfiguration fullConfig, MtgContext context)
     {
         _urlsConfig = fullConfig.GetSection("ExternalUrls");
         _context = context;
     }
 
-    /// <summary>
-    /// Получение цены для физической карты
-    /// </summary>
-    /// <param name="cardSet">ссылка на физическую карту. фактически, достаточно названия и аббревиатуры сета</param>
-    /// <returns>цена карты</returns>
-    /// <exception cref="Exception">полученные исключение просто перебрасываются выше, с выводом в консоль</exception>
-    public async Task<Price> GetPriceAsync(CardSet cardSet)
-    {
-        try
-        {
-            string searchCardName = cardSet.Card.Name.Replace(' ', '+');
-            IDocument doc = await GetHtmlAsync($"{_urlsConfig[GoldfishPriceConfig] + cardSet.Set.SearchText}/{searchCardName}" );
- 
-            Price? result = GetParsedPrice(doc);
-            if (result == null)
-            {
-                Console.WriteLine("Can't parse price data " + cardSet.Id );
-                throw new Exception();
-            }
-            
-            result.CardSet = cardSet;
-            return result;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-    }
-    
     public async Task<Card> GetCardAsync(string cardName)
     {
         try
@@ -94,14 +63,6 @@ public class ParseService
         }
     }
     
-    private async Task<IDocument> GetHtmlAsync(string path)
-    {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        IAngleConfig config = Configuration.Default.WithDefaultLoader();
-        IBrowsingContext context = BrowsingContext.New(config);
-        return await context.OpenAsync(path);
-    }
-
     public Card GetParsedCard(IDocument doc)
     {
         Card result = new ();
@@ -133,7 +94,7 @@ public class ParseService
         result.Quantity = fullCardInfo.Quantity;
         result.IsFoil = (byte)(fullCardInfo.IsFoil ? 1 : 0);
         
-        string rarityText = GetSubStringAfterChar(cellsInfo[4].TextContent, '-').Trim();
+        string rarityText = BaseParser.GetSubStringAfterChar(cellsInfo[4].TextContent, '-').Trim();
         result.Rarity = _context.Rarities.First(x => x.RusName == rarityText || x.Name == rarityText);
 
         return result;
@@ -158,7 +119,7 @@ public class ParseService
     private Set GetParsedSet(CardName cardName, IHtmlCollection<IElement> elements)
     {
         IElement manySetsInfo = elements[5];
-        IEnumerable<string> splinted = manySetsInfo.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => GetSubStringAfterChar(x, ','));
+        IEnumerable<string> splinted = manySetsInfo.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => BaseParser.GetSubStringAfterChar(x, ','));
         IEnumerable<string> cardVersions = splinted.Select(x => x[..x.IndexOf(',')].Trim());
 
         foreach (string cardVersion in cardVersions)
@@ -197,7 +158,7 @@ public class ParseService
             SetImg = imgData.Source
         };
 
-        (string main, string substr) = GetSeparateString(imgData.Title);
+        (string main, string substr) = BaseParser.GetSeparateString(imgData.Title);
 
         newSet.FullName = main;
         newSet.RusName = substr;
@@ -209,39 +170,15 @@ public class ParseService
         return newSet;
     }
     
-    private static Price? GetParsedPrice(IDocument doc)
-    {
-        IElement? priceBox = doc.QuerySelector(".price-box-price");
-        if (priceBox == null)
-        {
-            return null;
-        }
-        
-        string allDigits = GetSubStringAfterChar(priceBox.InnerHtml, ';');
-        
-        const NumberStyles style = NumberStyles.Number | NumberStyles.AllowCurrencySymbol;
-        CultureInfo provider = new ("en-GB");
-        
-        if (decimal.TryParse(allDigits,style, provider, out decimal price))
-        {
-            return new Price() 
-            {
-                Value = price, 
-                CreateDate = DateTime.Now
-            };
-        }
-
-        return null;
-    }
-
-
+    #region ParseFields
+    
     private void SetCardTextAndKeywords(Card card, IHtmlCollection<IElement> cellsText)
     {
         (List<string> keywordsText, string text) = GetKeywordsAndText(cellsText[0]);
         List<Keyword> keywords = keywordsText.Select(x => _context.Keywords
                 .FirstOrDefault(y => x.Contains(y.Name) || y.RusName == x))
-                .Where(x => x != null)
-                .ToList()!;
+            .Where(x => x != null)
+            .ToList()!;
         
         bool isRusCard = cellsText.Length > 1;
         card.Text = text;
@@ -256,9 +193,9 @@ public class ParseService
         (string power, string toughness) = GetPowerAndToughness(cellsInfo[3]);
 
         string cardTypePart = cellsInfo[1].TextContent.Replace("\n", string.Empty).Trim();
-        (string typeMain, string typeSubstr) = GetSeparateString(GetSubStringAfterChar(cardTypePart,':'));
+        (string typeMain, string typeSubstr) = BaseParser.GetSeparateString(BaseParser.GetSubStringAfterChar(cardTypePart,':'));
         
-        (string nameMain, string nameSubstr) = GetSeparateString(cellsInfo[0].TextContent);
+        (string nameMain, string nameSubstr) = BaseParser.GetSeparateString(cellsInfo[0].TextContent);
 
         
         card.Power = power;
@@ -291,7 +228,7 @@ public class ParseService
     
     private static (string power, string toughness) GetPowerAndToughness(IElement source)
     {
-        string powerAndTough = GetSubStringAfterChar(source.TextContent, ':');
+        string powerAndTough = BaseParser.GetSubStringAfterChar(source.TextContent, ':');
         int separator = powerAndTough.IndexOf('/');
         if (separator < 0)
         {
@@ -335,33 +272,6 @@ public class ParseService
     {
         return symbol.IsDigit() || symbol == 'X';
     }
-
-    private static (string main, string substr) GetSeparateString(string? source, string separator = "//")
-    {
-        if (string.IsNullOrEmpty(source))
-        {
-            throw new ArgumentException("source can't be null");
-        }
-        
-        int separatorIndex = source.IndexOf(separator, StringComparison.Ordinal);
-        if (separatorIndex < 0)
-        {
-            return (source, string.Empty);
-        }
-        
-        string left = source[..separatorIndex].Trim();
-        string right = source[separatorIndex..].Trim('/', ' ');
-        return left != right ? (left, right) : (left, string.Empty);
-    }
-
-    private static string GetSubStringAfterChar(string text, params char[] separators)
-    {
-        for (int i = 0; i < text.Length; i++)
-        {
-            if (separators.Contains(text[i]))
-                return text[(i+1)..];
-        }
-
-        return text.Trim();
-    }
+    
+    #endregion
 }
