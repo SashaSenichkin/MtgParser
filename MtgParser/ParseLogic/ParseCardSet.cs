@@ -51,10 +51,10 @@ public class ParseCardSet : BaseParser
     {
         try
         {
-            Card? storedCard = _context.Cards.FirstOrDefault(x => x.Name.Equals(cardName.Name, StringComparison.InvariantCultureIgnoreCase)
-                                                                   || x.NameRus.Equals(cardName.NameRus, StringComparison.InvariantCultureIgnoreCase));
+            Card? storedCard = _context.Cards.FirstOrDefault(x => x.Name.Equals(cardName.Name)
+                                                                   || x.NameRus.Equals(cardName.NameRus));
             
-            Set? storedSet = _context.Sets.FirstOrDefault(x => x.ShortName.Equals(cardName.SetShort, StringComparison.InvariantCultureIgnoreCase));
+            Set? storedSet = _context.Sets.FirstOrDefault(x => x.ShortName.Equals(cardName.SetShort));
 
             if (storedCard != null && storedSet != null)
             {
@@ -79,8 +79,8 @@ public class ParseCardSet : BaseParser
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
         SetCardData(result, cellsInfo);
         
-        Card? storedCard = _context.Cards.FirstOrDefault(x => x.Name.Equals(result.Name, StringComparison.InvariantCultureIgnoreCase)
-                                                               || x.NameRus.Equals(result.NameRus, StringComparison.InvariantCultureIgnoreCase));
+        Card? storedCard = _context.Cards.FirstOrDefault(x => x.Name.Equals(result.Name)
+                                                               || x.NameRus.Equals(result.NameRus));
         if (storedCard != null)
         {
             return storedCard;
@@ -112,15 +112,14 @@ public class ParseCardSet : BaseParser
         result.IsFoil = (byte)(fullCardInfo.IsFoil ? 1 : 0);
         
         string rarityText = GetSubStringAfterChar(cellsInfo[4].TextContent, '-').Trim();
-        result.Rarity = _context.Rarities.First(x => x.RusName.Equals(rarityText, StringComparison.InvariantCultureIgnoreCase) 
-                                                       || x.Name.Equals(rarityText, StringComparison.InvariantCultureIgnoreCase));
+        result.Rarity = _context.Rarities.First(x => x.RusName.Equals(rarityText) || x.Name.Equals(rarityText));
 
         return result;
     }
 
     private CardSet GetOrCreateCardSet(Set set, Card card)
     {
-        CardSet? result = _context.CardsSets.FirstOrDefault(x => x.Set.Equals(set) && x.Card == card);
+        CardSet? result = _context.CardsSets.FirstOrDefault(x => x.Set.ShortName.Equals(set.ShortName) && x.Card == card);
         if (result != null)
         {
             return result;
@@ -194,7 +193,7 @@ public class ParseCardSet : BaseParser
     {
         (List<string> keywordsText, string text) = GetKeywordsAndText(cellsText[0]);
         List<Keyword> keywords = keywordsText.Select(x => _context.Keywords
-                .FirstOrDefault(y => x.Contains(y.Name, StringComparison.InvariantCultureIgnoreCase) || y.RusName == x))
+                .FirstOrDefault(y => x.Contains(y.Name) || y.RusName == x))
             .Where(x => x != null)
             .ToList()!;
         

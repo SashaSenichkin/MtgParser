@@ -29,14 +29,4 @@ public class Set : BaseModel
     /// Картинка с пиктограммой сета
     /// </summary>
     public string SetImg { get; set; }
-    
-    /// <summary>
-    /// совпадение аббревиатуры - необходимое и достаточное условие равенства сетов.. можно было сделать первычным ключом..
-    /// </summary>
-    /// <param name="obj">другой сет, для сравнения</param>
-    /// <returns>одинаковость объектов</returns>
-    public override bool Equals(object? obj)
-    {
-        return ShortName == (obj as Set)?.ShortName;
-    }
 }
