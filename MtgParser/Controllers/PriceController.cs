@@ -14,10 +14,10 @@ namespace MtgParser.Controllers;
 public class PriceController : ControllerBase
 {
     private readonly ParsePrice _parsePrice;
-    private readonly ILogger _logger;
+    private readonly ILogger<PriceController> _logger;
     private readonly MtgContext _dbContext;
     
-    public PriceController(MtgContext dbContext, ParsePrice parsePrice,  ILogger logger)
+    public PriceController(MtgContext dbContext, ParsePrice parsePrice,  ILogger<PriceController> logger)
     {
         _parsePrice = parsePrice;
         _logger = logger;

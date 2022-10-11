@@ -13,10 +13,10 @@ namespace MtgParser.Controllers;
 public class ParseManyController : ControllerBase
 {
     private readonly ParseCardSet _parseCardSet;
-    private readonly ILogger _logger;
+    private readonly ILogger<ParseManyController> _logger;
     private readonly MtgContext _dbContext;
     
-    public ParseManyController(MtgContext dbContext, ParseCardSet parseCardSet, ILogger logger)
+    public ParseManyController(MtgContext dbContext, ParseCardSet parseCardSet, ILogger<ParseManyController> logger)
     {
         _parseCardSet = parseCardSet;
         _logger = logger;
@@ -63,9 +63,9 @@ public class ParseManyController : ControllerBase
         catch (Exception e)
         {
             _logger.LogError("error on card {Name}  {SetShort} error {Message}",
-                             cardRequest.Name,
-                             cardRequest.SetShort,
-                             e.Message + Environment.NewLine + e.StackTrace);
+                            cardRequest.Name ?? cardRequest.NameRus,
+                            cardRequest.SetShort,
+                            e.Message + Environment.NewLine + e.StackTrace);
         }
     }
 }
