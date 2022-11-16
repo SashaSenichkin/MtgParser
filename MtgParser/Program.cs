@@ -24,8 +24,8 @@ builder.Services.AddScoped<ParseCardSet>();
 builder.Services.AddScoped<ParsePrice>();
 
 string? connectionString = builder.Configuration.GetConnectionString("MtgContext");
-ServerVersion? version = ServerVersion.AutoDetect(connectionString);
-builder.Services.AddDbContext<MtgContext>(options => options.UseMySql(connectionString, version));
+
+builder.Services.AddSqlServer<MtgContext>(connectionString);
         
 WebApplication app = builder.Build();
         
