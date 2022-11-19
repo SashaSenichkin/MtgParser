@@ -39,11 +39,11 @@ public class ParseCardSet : BaseParser
             IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + cardName);
             Card result = GetParsedCard(doc);
             return result;
+
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            throw new Exception("Cant get info from web");
         }
     }
     
@@ -77,6 +77,11 @@ public class ParseCardSet : BaseParser
     {
         Card result = new ();
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
+        if (!cellsInfo.Any())
+        {
+            return null;
+        }
+        
         SetCardData(result, cellsInfo);
         
         Card? storedCard = _context.Cards.FirstOrDefault(x => x.Name.Equals(result.Name)

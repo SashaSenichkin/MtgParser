@@ -24,6 +24,30 @@ public class ParseManyController : ControllerBase
     }
 
     /// <summary>
+    /// загрузить имена для дальнейшей разборки
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    [HttpPost(Name = "PostCardNamesInfo")]
+    public bool PostCardNamesInfo(IEnumerable<CardName> data)
+    {
+        try
+        {
+            foreach (CardName card in data)
+            {
+                _dbContext.CardsNames.AddAsync(card);
+            }
+            _dbContext.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+    }
+    
+    /// <summary>
     /// проходится по всем записям в таблице CardNames, пытается получить информацию с сайтов и сохранить в нашем виде
     /// </summary>
     /// <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
@@ -57,6 +81,7 @@ public class ParseManyController : ControllerBase
             CardSet cardSet = await _parseCardSet.GetCardSetAsync(cardRequest);
             if (cardSet.Id == default)
             {
+                _logger.LogInformation($"add card {cardSet.Card.Name} {cardSet.Card.NameRus} {cardSet.Rarity} + {cardSet.Set.ShortName}");
                 await _dbContext.CardsSets.AddAsync(cardSet);
             }
         }

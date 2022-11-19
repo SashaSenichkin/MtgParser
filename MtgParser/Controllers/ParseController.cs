@@ -32,6 +32,16 @@ public class ParseController : ControllerBase
     }
     
     /// <summary>
+    /// пинг бэка для проверки работоспособности
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet(Name = "GetTestInfo")]
+    public String GetTestInfo()
+    {
+        return "All systems on-line";
+    }
+
+    /// <summary>
     /// проверка получение физического представления карты, с максимальной информацией, которую можем получить из других источников
     /// </summary>
     /// <param name="cardName">имя карты</param>
