@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using AngleSharp;
 using AngleSharp.Dom;
+using IConfiguration = AngleSharp.IConfiguration;
 
 namespace MtgParser.ParseLogic;
 
