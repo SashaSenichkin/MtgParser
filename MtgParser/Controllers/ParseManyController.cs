@@ -48,6 +48,29 @@ public class ParseManyController : ControllerBase
     }
     
     /// <summary>
+    /// удалить все данные, кроме справочников Rarity, Keywords и вручную заполняемой таблицы CardNames
+    /// </summary>
+    /// <returns></returns>
+    [HttpDelete(Name = "ClearParsedData")]
+    public bool ClearParsedData()
+    {
+        try
+        {
+            _dbContext.CardsSets.RemoveRange(_dbContext.CardsSets);
+            _dbContext.Prices.RemoveRange(_dbContext.Prices);
+            _dbContext.Cards.RemoveRange(_dbContext.Cards);
+            _dbContext.Sets.RemoveRange(_dbContext.Sets);
+            
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+    }
+    
+    /// <summary>
     /// проходится по всем записям в таблице CardNames, пытается получить информацию с сайтов и сохранить в нашем виде
     /// </summary>
     /// <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
