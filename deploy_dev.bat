@@ -1,0 +1,1 @@
+docker run -e "ACCEPT_EULA=Y"  -e "MSSQL_COLLATION=Latin1_General_100_CI_AS_SC_UTF8" -e "MSSQL_SA_PASSWORD=QWE!@#qwe123" --name mtg_dev -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
