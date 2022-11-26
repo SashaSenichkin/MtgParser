@@ -9,7 +9,7 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 namespace MtgParser.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 public class ParseManyController : ControllerBase
 {
     private readonly ParseCardSet _parseCardSet;
@@ -52,7 +52,7 @@ public class ParseManyController : ControllerBase
     /// </summary>
     /// <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
     [HttpPost(Name = "PostMany")]
-    public async Task<bool> PostToDb()
+    public async Task<bool> PostMany()
     {
         try
         {
