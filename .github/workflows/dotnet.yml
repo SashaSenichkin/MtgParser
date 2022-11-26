@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: mcr.microsoft.com/dotnet/sdk:7.0
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
