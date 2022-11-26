@@ -114,3 +114,4 @@ StyleCop.Cache
 /ML/next_oper/operations.pyz
 /src_back/Itsk.ER.Sync.InstanceDatabase.SQLite/database/db_schema_patches.zip
 Itsk.ER.DC.Frontend/grunt
+MtgParser/logs/
