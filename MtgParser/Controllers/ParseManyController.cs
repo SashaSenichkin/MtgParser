@@ -60,7 +60,8 @@ public class ParseManyController : ControllerBase
             _dbContext.Prices.RemoveRange(_dbContext.Prices);
             _dbContext.Cards.RemoveRange(_dbContext.Cards);
             _dbContext.Sets.RemoveRange(_dbContext.Sets);
-            
+
+            _dbContext.SaveChanges();
             return true;
         }
         catch (Exception e)
@@ -74,8 +75,8 @@ public class ParseManyController : ControllerBase
     /// проходится по всем записям в таблице CardNames, пытается получить информацию с сайтов и сохранить в нашем виде
     /// </summary>
     /// <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
-    [HttpPost(Name = "PostMany")]
-    public async Task<bool> PostMany()
+    [HttpPost(Name = "ParceAllCardNamesToDb")]
+    public async Task<bool> ParceAllCardNamesToDb()
     {
         try
         {
@@ -104,7 +105,7 @@ public class ParseManyController : ControllerBase
             CardSet cardSet = await _parseCardSet.GetCardSetAsync(cardRequest);
             if (cardSet.Id == default)
             {
-                _logger.LogInformation($"add card {cardSet.Card.Name} {cardSet.Card.NameRus} {cardSet.Rarity} + {cardSet.Set.ShortName}");
+                _logger.LogInformation($"add card {cardSet.Card.Name} {cardSet.Card.NameRus} {cardSet.Rarity.Name} + {cardSet.Set.ShortName}");
                 await _dbContext.CardsSets.AddAsync(cardSet);
             }
         }

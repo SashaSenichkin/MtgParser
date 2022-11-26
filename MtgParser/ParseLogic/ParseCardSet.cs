@@ -51,14 +51,21 @@ public class ParseCardSet : BaseParser
     {
         try
         {
-            Card? storedCard = _context.Cards.FirstOrDefault(x => x.Name.Equals(cardName.Name)
-                                                                   || x.NameRus.Equals(cardName.NameRus));
+            Card? storedCard = _context.Cards.FirstOrDefault(x => (!string.IsNullOrEmpty(x.Name) 
+                                                                  && x.Name.Equals(cardName.Name)) ||
+                                                                  (!string.IsNullOrEmpty(x.NameRus) 
+                                                                  && x.NameRus.Equals(cardName.NameRus)));
             
             Set? storedSet = _context.Sets.FirstOrDefault(x => x.ShortName.Equals(cardName.SetShort));
 
             if (storedCard != null && storedSet != null)
             {
-                return GetOrCreateCardSet(storedSet, storedCard);
+                CardSet? existingCardSet = _context.CardsSets.FirstOrDefault(x => x.Set.ShortName.Equals(storedSet.ShortName) && x.Card.Id == storedCard.Id);
+                CardSet newCardSet = existingCardSet.Clone() as CardSet;
+                if (newCardSet != null)
+                {
+                    return newCardSet;
+                }
             }
             
             string? setName = cardName.Name ?? cardName.NameRus;

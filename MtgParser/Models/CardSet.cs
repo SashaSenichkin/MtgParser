@@ -3,7 +3,7 @@ namespace MtgParser.Model;
 /// <summary>
 /// Отображение физической карты
 /// </summary>
-public class CardSet: BaseModel
+public class CardSet: BaseModel, ICloneable
 {
     /// <summary>
     /// Связанное описание карты
@@ -39,4 +39,9 @@ public class CardSet: BaseModel
     /// введённая вручную цена. на неё фронт смотрит, и игнорит все наши, если есть..
     /// </summary>
     public decimal? ManualPrice { get; set; }
+
+    public object Clone()
+    {
+        return MemberwiseClone();
+    }
 }
