@@ -14,7 +14,7 @@ namespace MtgParserTest;
 public class Tests
 {
     private MtgContext _dbContext;
-    private ParseCardSet _parseCardSet;
+    private CardSetParser _cardSetParser;
     
     [SetUp]
     public void Setup()
@@ -47,7 +47,7 @@ public class Tests
         builder.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettings)));
 
         var configuration= builder.Build();
-        _parseCardSet = new ParseCardSet(configuration, _dbContext);
+        _cardSetParser = new CardSetParser(configuration, _dbContext);
     }
 
     private IDocument GetDocument(string sourceName, IBrowsingContext context)
@@ -68,7 +68,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Hazoret the Fervent.htm", context);
-        Card card = _parseCardSet.GetParsedCard(doc);
+        Card card = _cardSetParser.GetParsedCard(doc);
         
         Assert.That(card.Toughness, Is.EqualTo("4"));
         Assert.That(card.Power, Is.EqualTo("5"));
@@ -82,7 +82,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Gyrus Waker of Corpses.htm", context);
-        Card card = _parseCardSet.GetParsedCard(doc);
+        Card card = _cardSetParser.GetParsedCard(doc);
         
         Assert.That(card.Toughness, Is.EqualTo("0"));
         Assert.That(card.Power, Is.EqualTo("0"));
@@ -96,7 +96,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Infinity Elemental.htm", context);
-        Card card = _parseCardSet.GetParsedCard(doc);
+        Card card = _cardSetParser.GetParsedCard(doc);
         
         Assert.That(card.Toughness, Is.EqualTo("5"));
         Assert.That(card.Power, Is.EqualTo("/"));
@@ -110,7 +110,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("A Little Chat.htm", context);
-        Card card = _parseCardSet.GetParsedCard(doc);
+        Card card = _cardSetParser.GetParsedCard(doc);
         
         Assert.That(card.Toughness, Is.EqualTo("-"));
         Assert.That(card.Power, Is.EqualTo("-"));
@@ -124,7 +124,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Lucky Clove.htm", context);
-        Card card = _parseCardSet.GetParsedCard(doc);
+        Card card = _cardSetParser.GetParsedCard(doc);
         
         Assert.That(card.Toughness, Is.EqualTo("-"));
         Assert.That(card.Power, Is.EqualTo("-"));
@@ -138,7 +138,7 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Secluded Steppe.htm", context);
-        Card card = _parseCardSet.GetParsedCard(doc);
+        Card card = _cardSetParser.GetParsedCard(doc);
         
         Assert.That(card.Toughness, Is.EqualTo("-"));
         Assert.That(card.Power, Is.EqualTo("-"));

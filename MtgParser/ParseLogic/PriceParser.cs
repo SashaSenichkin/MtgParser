@@ -14,13 +14,13 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace MtgParser.ParseLogic;
 
-public class ParsePrice : BaseParser
+public class PriceParser : BaseParser
 {
     private readonly IConfigurationSection _urlsConfig;
 
     private const string GoldfishPriceConfig = "PriceApi";
 
-    public ParsePrice(IConfiguration fullConfig)
+    public PriceParser(IConfiguration fullConfig)
     {
         _urlsConfig = fullConfig.GetSection("ExternalUrls");
     }

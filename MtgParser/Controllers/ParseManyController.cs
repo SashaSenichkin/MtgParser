@@ -12,13 +12,13 @@ namespace MtgParser.Controllers;
 [Route("[controller]/[action]")]
 public class ParseManyController : ControllerBase
 {
-    private readonly ParseCardSet _parseCardSet;
+    private readonly CardSetParser _cardSetParser;
     private readonly ILogger<ParseManyController> _logger;
     private readonly MtgContext _dbContext;
     
-    public ParseManyController(MtgContext dbContext, ParseCardSet parseCardSet, ILogger<ParseManyController> logger)
+    public ParseManyController(MtgContext dbContext, CardSetParser cardSetParser, ILogger<ParseManyController> logger)
     {
-        _parseCardSet = parseCardSet;
+        _cardSetParser = cardSetParser;
         _logger = logger;
         _dbContext = dbContext;
     }
@@ -102,7 +102,7 @@ public class ParseManyController : ControllerBase
     {
         try
         {
-            CardSet cardSet = await _parseCardSet.GetCardSetAsync(cardRequest);
+            CardSet cardSet = await _cardSetParser.GetCardSetAsync(cardRequest);
             if (cardSet.Id == default)
             {
                 _logger.LogInformation($"add card {cardSet.Card.Name} {cardSet.Card.NameRus} {cardSet.Rarity.Name} + {cardSet.Set.ShortName}");

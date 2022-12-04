@@ -14,7 +14,7 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace MtgParser.ParseLogic;
 
-public class ParseCardSet : BaseParser
+public class CardSetParser : BaseParser
 {
     private readonly IConfigurationSection _urlsConfig;
     private readonly MtgContext _context;
@@ -26,7 +26,7 @@ public class ParseCardSet : BaseParser
     private const string MtgRuInConfig = "BaseMtgRu";
     private const string MtgRuInfoTableConfig = "MtgRuInfoTable";
 
-    public ParseCardSet(IConfiguration fullConfig, MtgContext context)
+    public CardSetParser(IConfiguration fullConfig, MtgContext context)
     {
         _urlsConfig = fullConfig.GetSection("ExternalUrls");
         _context = context;

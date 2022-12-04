@@ -13,13 +13,13 @@ namespace MtgParser.Controllers;
 [Route("[controller]")]
 public class PriceController : ControllerBase
 {
-    private readonly ParsePrice _parsePrice;
+    private readonly PriceParser _priceParser;
     private readonly ILogger<PriceController> _logger;
     private readonly MtgContext _dbContext;
     
-    public PriceController(MtgContext dbContext, ParsePrice parsePrice,  ILogger<PriceController> logger)
+    public PriceController(MtgContext dbContext, PriceParser priceParser,  ILogger<PriceController> logger)
     {
-        _parsePrice = parsePrice;
+        _priceParser = priceParser;
         _logger = logger;
         _dbContext = dbContext;
     }
@@ -46,7 +46,7 @@ public class PriceController : ControllerBase
                 return new BadRequestResult();
             }
 
-            Price price = await _parsePrice.GetPriceAsync(cardSet);
+            Price price = await _priceParser.GetPriceAsync(cardSet);
             return new OkObjectResult(price);
         }
         catch (Exception e)
@@ -71,7 +71,7 @@ public class PriceController : ControllerBase
             {
                 try
                 {
-                    Price price = await _parsePrice.GetPriceAsync(cardRequest);
+                    Price price = await _priceParser.GetPriceAsync(cardRequest);
                     if (cardRequest.Prices.MaxBy(x => x.CreateDate)?.Value != price.Value)
                     {
                         _dbContext.Prices.Add(price);
