@@ -46,7 +46,7 @@ public class PriceController : ControllerBase
                 return new BadRequestResult();
             }
 
-            Price price = await _priceParser.GetPriceAsync(cardSet);
+            Price price = await _priceParser.GetPriceAsync(cardSet, default);
             return new OkObjectResult(price);
         }
         catch (Exception e)
@@ -71,7 +71,7 @@ public class PriceController : ControllerBase
             {
                 try
                 {
-                    Price price = await _priceParser.GetPriceAsync(cardRequest);
+                    Price price = await _priceParser.GetPriceAsync(cardRequest, default);
                     if (cardRequest.Prices.MaxBy(x => x.CreateDate)?.Value != price.Value)
                     {
                         _dbContext.Prices.Add(price);

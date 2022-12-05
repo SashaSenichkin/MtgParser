@@ -16,87 +16,27 @@ namespace MtgParser.ParseLogic;
 
 public class CardSetParser : BaseParser
 {
-    private readonly IConfigurationSection _urlsConfig;
     private readonly MtgContext _context;
 
     private const string CellSelectorMain = ".SearchCardInfoText";
     private const string CellSelectorInfo = ".SearchCardInfoDIV";
     private const string FullTableInfo = ".NoteDiv";
     
-    private const string MtgRuInConfig = "BaseMtgRu";
-    private const string MtgRuInfoTableConfig = "MtgRuInfoTable";
-
-    public CardSetParser(IConfiguration fullConfig, MtgContext context)
+    public CardSetParser(MtgContext context)
     {
-        _urlsConfig = fullConfig.GetSection("ExternalUrls");
         _context = context;
     }
 
-    public async Task<Card> GetCardAsync(string cardName)
+    public Card? GetCard(IDocument doc)
     {
-        try
-        {
-            IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + cardName);
-            Card result = GetParsedCard(doc);
-            return result;
-
-        }
-        catch (Exception e)
-        {
-            throw new Exception("Cant get info from web");
-        }
-    }
-    
-    public async Task<CardSet> GetCardSetAsync(CardName cardName)
-    {
-        try
-        {
-            Card? storedCard = _context.Cards.FirstOrDefault(x => (!string.IsNullOrEmpty(x.Name) 
-                                                                  && x.Name.Equals(cardName.Name)) ||
-                                                                  (!string.IsNullOrEmpty(x.NameRus) 
-                                                                  && x.NameRus.Equals(cardName.NameRus)));
-            
-            Set? storedSet = _context.Sets.FirstOrDefault(x => x.ShortName.Equals(cardName.SetShort));
-
-            if (storedCard != null && storedSet != null)
-            {
-                CardSet? existingCardSet = _context.CardsSets.FirstOrDefault(x => x.Set.ShortName.Equals(storedSet.ShortName) && x.Card.Id == storedCard.Id);
-                CardSet newCardSet = existingCardSet.Clone() as CardSet;
-                if (newCardSet != null)
-                {
-                    return newCardSet;
-                }
-            }
-            
-            string? setName = cardName.Name ?? cardName.NameRus;
-            IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + setName);
-            CardSet result = GetParsedCardSet(doc, cardName);
-            return result;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-    }
-    
-    public Card GetParsedCard(IDocument doc)
-    {
-        Card result = new ();
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
         if (!cellsInfo.Any())
         {
             return null;
         }
         
+        Card result = new();
         SetCardData(result, cellsInfo);
-        
-        Card? storedCard = _context.Cards.FirstOrDefault(x => x.Name.Equals(result.Name)
-                                                               || x.NameRus.Equals(result.NameRus));
-        if (storedCard != null)
-        {
-            return storedCard;
-        }
 
         IHtmlCollection<IElement> cellsText = doc.QuerySelectorAll(CellSelectorMain);
         SetCardTextAndKeywords(result, cellsText);
@@ -110,63 +50,40 @@ public class CardSetParser : BaseParser
         return result;
     }
     
-    private CardSet GetParsedCardSet(IDocument doc, CardName fullCardInfo)
+    public CardSet GetCardSet(IDocument doc)
     {
-        Card card = GetParsedCard(doc);
-        card.IsRus = fullCardInfo.NameRus == null;
-        
+        CardSet result = new();
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
-        
-        Set set = GetParsedSet(fullCardInfo, cellsInfo);
-        CardSet result = GetOrCreateCardSet(set, card);
-        
-        result.Quantity = fullCardInfo.Quantity;
-        result.IsFoil = (byte)(fullCardInfo.IsFoil ? 1 : 0);
         
         string rarityText = GetSubStringAfterChar(cellsInfo[4].TextContent, '-').Trim();
         result.Rarity = _context.Rarities.First(x => x.RusName.Equals(rarityText) || x.Name.Equals(rarityText));
 
         return result;
     }
-
-    private CardSet GetOrCreateCardSet(Set set, Card card)
-    {
-        CardSet? result = _context.CardsSets.FirstOrDefault(x => x.Set.ShortName.Equals(set.ShortName) && x.Card == card);
-        if (result != null)
-        {
-            return result;
-        }
-
-        CardSet newCardSet = new()
-        {
-            Card = card,
-            Set = set
-        };
-        return newCardSet;
-    }
     
-    private Set GetParsedSet(CardName cardName, IHtmlCollection<IElement> elements)
+    /// <summary>
+    /// take all available sets info from html
+    /// </summary>
+    /// <param name="doc"></param>
+    /// <returns></returns>
+    public static (IEnumerable<string> variousSets, IElement defaultOption) GetSetCandidates(IDocument doc)
     {
+        IHtmlCollection<IElement> elements = doc.QuerySelectorAll(CellSelectorInfo);
         IElement manySetsInfo = elements[5];
         IEnumerable<string> splinted = manySetsInfo.InnerHtml.Split("ShowCardVersion").Skip(1).Select(x => GetSubStringAfterChar(x, ','));
         IEnumerable<string> cardVersions = splinted.Select(x => x[..x.IndexOf(',')].Trim());
 
-        foreach (string cardVersion in cardVersions)
-        {
-            Task<IDocument> docT = GetHtmlAsync(_urlsConfig[MtgRuInfoTableConfig] + cardVersion);
-            docT.Wait();
-            IHtmlCollection<IElement> cellsInfo = docT.Result.QuerySelectorAll(CellSelectorInfo);
-            Set set = GetOrCreateSet(cellsInfo[0]);
-            if (set.ShortName == cardName.SetShort)
-            {
-                return set;
-            }
-        }
-        
-        return GetOrCreateSet(elements[0]);
+        return (cardVersions, elements[0]);
     }
 
-    private Set GetOrCreateSet(IElement element)
+
+    public Set GetSet(IDocument doc)
+    {
+        IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
+        return GetSet(cellsInfo.First());
+    }
+
+    public Set GetSet(IElement element)
     {
         IHtmlImageElement? imgData = element.QuerySelector("img") as IHtmlImageElement;
         

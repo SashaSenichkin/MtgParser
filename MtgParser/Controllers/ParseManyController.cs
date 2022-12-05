@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MtgParser.Context;
 using MtgParser.Model;
 using MtgParser.ParseLogic;
+using MtgParser.Provider;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace MtgParser.Controllers;
@@ -12,13 +14,13 @@ namespace MtgParser.Controllers;
 [Route("[controller]/[action]")]
 public class ParseManyController : ControllerBase
 {
-    private readonly CardSetParser _cardSetParser;
+    private readonly ICardSetProvider _cardSetProvider;
     private readonly ILogger<ParseManyController> _logger;
     private readonly MtgContext _dbContext;
     
-    public ParseManyController(MtgContext dbContext, CardSetParser cardSetParser, ILogger<ParseManyController> logger)
+    public ParseManyController(MtgContext dbContext, ICardSetProvider cardSetProvider, ILogger<ParseManyController> logger)
     {
-        _cardSetParser = cardSetParser;
+        _cardSetProvider = cardSetProvider;
         _logger = logger;
         _dbContext = dbContext;
     }
@@ -60,7 +62,7 @@ public class ParseManyController : ControllerBase
             _dbContext.Prices.RemoveRange(_dbContext.Prices);
             _dbContext.Cards.RemoveRange(_dbContext.Cards);
             _dbContext.Sets.RemoveRange(_dbContext.Sets);
-
+            
             _dbContext.SaveChanges();
             return true;
         }
@@ -100,9 +102,15 @@ public class ParseManyController : ControllerBase
 
     private async Task ProcessOneCardName(CardName cardRequest)
     {
+        if (string.IsNullOrEmpty(cardRequest.SeekName))
+        {
+            _logger.LogWarning("empty request on id {Id}", cardRequest.Id);
+            return;
+        }
+        
         try
         {
-            CardSet cardSet = await _cardSetParser.GetCardSetAsync(cardRequest);
+            CardSet cardSet = await _cardSetProvider.GetCardSetAsync(cardRequest);
             if (cardSet.Id == default)
             {
                 _logger.LogInformation($"add card {cardSet.Card.Name} {cardSet.Card.NameRus} {cardSet.Rarity.Name} + {cardSet.Set.ShortName}");
@@ -111,7 +119,7 @@ public class ParseManyController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError("error on card {Name}  {SetShort} error {Message}",
+            _logger.LogError("error on card {Name} {SetShort} error {Message}",
                             cardRequest.Name ?? cardRequest.NameRus,
                             cardRequest.SetShort,
                             e.Message + Environment.NewLine + e.StackTrace);

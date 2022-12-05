@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace MtgParser.Model;
 
 /// <summary>

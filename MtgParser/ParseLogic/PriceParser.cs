@@ -18,8 +18,6 @@ public class PriceParser : BaseParser
 {
     private readonly IConfigurationSection _urlsConfig;
 
-    private const string GoldfishPriceConfig = "PriceApi";
-
     public PriceParser(IConfiguration fullConfig)
     {
         _urlsConfig = fullConfig.GetSection("ExternalUrls");
@@ -31,12 +29,12 @@ public class PriceParser : BaseParser
     /// <param name="cardSet">ссылка на физическую карту. фактически, достаточно названия и аббревиатуры сета</param>
     /// <returns>цена карты</returns>
     /// <exception cref="Exception">полученные исключение просто перебрасываются выше, с выводом в консоль</exception>
-    public async Task<Price> GetPriceAsync(CardSet cardSet)
+    public async Task<Price> GetPriceAsync(CardSet cardSet, IDocument doc)
     {
         try
         {
             string searchCardName = cardSet.Card.Name.Replace(' ', '+');
-            IDocument doc = await GetHtmlAsync($"{_urlsConfig[GoldfishPriceConfig] + cardSet.Set.SearchText}/{searchCardName}" );
+            //IDocument doc = await GetHtmlAsync($"{_urlsConfig[GoldfishPriceConfig] + cardSet.Set.SearchText}/{searchCardName}" );
  
             Price? result = GetParsedPrice(doc);
             if (result == null)
