@@ -37,10 +37,14 @@ public class CardSetProvider : ICardSetProvider
                 return storedCardSet;
             }
 
-            IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + cardName.SeekName);
+            IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + cardName.SeekName + $"&Grp={cardName.SetShort}");
             Card card = _parser.GetCard(doc);
-            Set set = await GetSetFromWebAsync(cardName.SetShort,doc);
+            if (card == null)
+            {
+                throw new Exception($"can't find card {cardName.SeekName}");
+            }
             
+            Set set = await GetSetFromWebAsync(cardName.SetShort, doc);
             if (set.ShortName != cardName.SetShort)
             {
                 throw new Exception($"Проверьте название сета предполагаемый вариант {set.ShortName}({set.FullName}) предложенный {cardName.SetShort}");
