@@ -13,7 +13,7 @@ public class CardSetParser : BaseParser
 {
     private readonly MtgContext _context;
 
-    private const string CellSelectorMain = ".SearchCardInfoText";
+    private const string CellSelectorMain = ".SearchCardTextDiv";
     private const string CellSelectorInfo = ".SearchCardInfoDIV";
     private const string FullTableInfo = ".NoteDiv";
     
