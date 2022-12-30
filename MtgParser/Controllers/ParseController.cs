@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using MtgParser.Context;
 using MtgParser.Model;
 using MtgParser.Provider;
@@ -13,9 +11,9 @@ public class ParseController : ControllerBase
 {
     private readonly ICardSetProvider _cardSetProvider;
     private readonly MtgContext _dbContext;
-    private readonly ILogger _logger;
+    private readonly ILogger<ParseController> _logger;
     
-    public ParseController(MtgContext dbContext, ILogger logger, ICardSetProvider cardSetProvider)
+    public ParseController(MtgContext dbContext, ILogger<ParseController> logger, ICardSetProvider cardSetProvider)
     {
         _cardSetProvider = cardSetProvider;
         _dbContext = dbContext;

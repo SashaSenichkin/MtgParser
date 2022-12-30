@@ -1,11 +1,5 @@
 ﻿using System.Globalization;
-using System.Text;
-using AngleSharp;
 using AngleSharp.Dom;
-using AngleSharp.Html.Dom;
-using AngleSharp.Text;
-using Microsoft.Extensions.Configuration;
-using MtgParser.Context;
 using MtgParser.Model;
 
 using IAngleConfig = AngleSharp.IConfiguration;

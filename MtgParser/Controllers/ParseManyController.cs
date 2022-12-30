@@ -1,12 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using MtgParser.Context;
 using MtgParser.Model;
-using MtgParser.ParseLogic;
 using MtgParser.Provider;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace MtgParser.Controllers;
 

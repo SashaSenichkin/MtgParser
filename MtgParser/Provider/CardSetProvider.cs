@@ -3,7 +3,6 @@ using MtgParser.Context;
 using MtgParser.Model;
 using System.Text;
 using AngleSharp;
-using AngleSharp.Dom;
 using Microsoft.EntityFrameworkCore;
 using MtgParser.ParseLogic;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
