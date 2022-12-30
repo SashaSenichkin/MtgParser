@@ -42,6 +42,11 @@ public class CardSetProvider : ICardSetProvider
             {
                 throw new Exception($"can't find card {cardName.SeekName}");
             }
+
+            if (string.IsNullOrEmpty(cardName.SetShort))
+            {
+                return new CardSet() { Card = card };
+            }
             
             Set set = await GetSetFromWebAsync(cardName.SetShort, doc);
             if (set.ShortName != cardName.SetShort)
