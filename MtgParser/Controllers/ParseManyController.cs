@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using MtgParser.Context;
 using MtgParser.Model;
 using MtgParser.Provider;
+using Newtonsoft.Json;
 
 namespace MtgParser.Controllers;
 
@@ -41,6 +42,32 @@ public class ParseManyController : ControllerBase
         {
             Console.WriteLine(e);
             return false;
+        }
+    }
+
+    /// <summary>
+    /// получить информацию по именам для теста
+    /// </summary>
+    /// <param name="dataRaw"></param>
+    /// <returns></returns>
+    [HttpGet(Name = "GetCardNamesInfo")]
+    public async Task<IEnumerable<CardSet>> GetCardNamesInfo(string dataRaw)
+    {
+        try
+        {
+            CardName[]? data = JsonConvert.DeserializeObject<CardName[]>(dataRaw);
+            List<CardSet> result = new();
+            foreach (CardName card in data)
+            {
+                result.Add(await _cardSetProvider.GetCardSetAsync(card));
+            }
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
     }
     
