@@ -1,0 +1,205 @@
+{
+	"info": {
+		"_postman_id": "45127125-331c-46cc-9091-ad0e46fa1277",
+		"name": "MTG",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GetCardInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Check parse on power field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.power).to.eql(\"5\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/Parse/GetCardInfo?cardName=Hazoret",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"Parse",
+						"GetCardInfo"
+					],
+					"query": [
+						{
+							"key": "cardName",
+							"value": "Hazoret"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SelfCheck",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/SelfCheck/GetUnparsedCards",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"SelfCheck",
+						"GetUnparsedCards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetCardNamesInfo Debug",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/ParseMany/GetCardNamesInfo?dataRaw=[{\"name\":\"\",\"nameRus\":\"Silent Submersible\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"WAR\",\"seekName\":\"Silent Submersible\",\"id\":1109},{\"name\":\"Overwhelmed Apprentice \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"ELD\",\"seekName\":\"Overwhelmed Apprentice \",\"id\":1117},{\"name\":\"Banishing Slash \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"NEO\",\"seekName\":\"Banishing Slash \",\"id\":1173},{\"name\":\"Angelic Exaltation \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"RNA\",\"seekName\":\"Angelic Exaltation \",\"id\":1180},{\"name\":\"Lazotep Plating \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"WAR\",\"seekName\":\"Lazotep Plating \",\"id\":1229},{\"name\":\"\",\"nameRus\":\" Темное Спасение\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"EMN\",\"seekName\":\" Темное Спасение\",\"id\":1260},{\"name\":\"Wight 1 \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":true,\"setShort\":\"AFR\",\"seekName\":\"Wight 1 \",\"id\":1291},{\"name\":\"Vizier of the Scorpion \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"WAR\",\"seekName\":\"Vizier of the Scorpion \",\"id\":1293},{\"name\":\"Cauldron's Gift \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"ELD\",\"seekName\":\"Cauldron's Gift \",\"id\":1325},{\"name\":\"\",\"nameRus\":\"Amplifire\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"RNA\",\"seekName\":\"Amplifire\",\"id\":1340},{\"name\":\"Smelt-Ward Ignus \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"RNA\",\"seekName\":\"Smelt-Ward Ignus \",\"id\":1372}]",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ParseMany",
+						"GetCardNamesInfo"
+					],
+					"query": [
+						{
+							"key": "dataRaw",
+							"value": "[{\"name\":\"\",\"nameRus\":\"Silent Submersible\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"WAR\",\"seekName\":\"Silent Submersible\",\"id\":1109},{\"name\":\"Overwhelmed Apprentice \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"ELD\",\"seekName\":\"Overwhelmed Apprentice \",\"id\":1117},{\"name\":\"Banishing Slash \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"NEO\",\"seekName\":\"Banishing Slash \",\"id\":1173},{\"name\":\"Angelic Exaltation \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"RNA\",\"seekName\":\"Angelic Exaltation \",\"id\":1180},{\"name\":\"Lazotep Plating \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"WAR\",\"seekName\":\"Lazotep Plating \",\"id\":1229},{\"name\":\"\",\"nameRus\":\" Темное Спасение\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"EMN\",\"seekName\":\" Темное Спасение\",\"id\":1260},{\"name\":\"Wight 1 \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":true,\"setShort\":\"AFR\",\"seekName\":\"Wight 1 \",\"id\":1291},{\"name\":\"Vizier of the Scorpion \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"WAR\",\"seekName\":\"Vizier of the Scorpion \",\"id\":1293},{\"name\":\"Cauldron's Gift \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"ELD\",\"seekName\":\"Cauldron's Gift \",\"id\":1325},{\"name\":\"\",\"nameRus\":\"Amplifire\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"RNA\",\"seekName\":\"Amplifire\",\"id\":1340},{\"name\":\"Smelt-Ward Ignus \",\"nameRus\":\"\",\"quantity\":1,\"isFoil\":false,\"setShort\":\"RNA\",\"seekName\":\"Smelt-Ward Ignus \",\"id\":1372}]"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetCardSetInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Check parse on power field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.card.power).to.eql(\"5\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/Parse/GetCardSetInfo?cardName=Hazoret&setShortName=MPS_AKH",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"Parse",
+						"GetCardSetInfo"
+					],
+					"query": [
+						{
+							"key": "cardName",
+							"value": "Hazoret"
+						},
+						{
+							"key": "setShortName",
+							"value": "MPS_AKH"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetCardSetInfo Debug",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/Parse/GetCardSetInfo?cardName=Memnite&setShortName=SOM",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"Parse",
+						"GetCardSetInfo"
+					],
+					"query": [
+						{
+							"key": "cardName",
+							"value": "Memnite"
+						},
+						{
+							"key": "setShortName",
+							"value": "SOM"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
