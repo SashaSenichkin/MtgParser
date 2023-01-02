@@ -11,12 +11,8 @@ namespace MtgParser.ParseLogic;
 
 public class PriceParser : BaseParser
 {
-    private readonly MtgContext _context;
-
-    public PriceParser(MtgContext context)
-    {
-        _context = context;
-    }
+    private const string PriceSelector = ".price-box-price";
+    
 
     /// <summary>
     /// Получение цены для физической карты
@@ -47,7 +43,7 @@ public class PriceParser : BaseParser
     
     private static Price? GetParsedPrice(IDocument doc)
     {
-        IElement? priceBox = doc.QuerySelector(".price-box-price");
+        IElement? priceBox = doc.QuerySelector(PriceSelector);
         if (priceBox == null)
         {
             return null;
