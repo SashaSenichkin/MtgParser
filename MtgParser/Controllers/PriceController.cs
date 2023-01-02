@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MtgParser.Context;
 using MtgParser.Model;
-using MtgParser.ParseLogic;
+using MtgParser.Provider;
 
 namespace MtgParser.Controllers;
 
@@ -10,13 +10,13 @@ namespace MtgParser.Controllers;
 [Route("[controller]/[action]")]
 public class PriceController : ControllerBase
 {
-    private readonly PriceParser _priceParser;
+    private readonly IPriceProvider _priceProvider;
     private readonly ILogger<PriceController> _logger;
     private readonly MtgContext _dbContext;
     
-    public PriceController(MtgContext dbContext, PriceParser priceParser,  ILogger<PriceController> logger)
+    public PriceController(MtgContext dbContext, IPriceProvider priceProvider,  ILogger<PriceController> logger)
     {
-        _priceParser = priceParser;
+        _priceProvider = priceProvider;
         _logger = logger;
         _dbContext = dbContext;
     }
@@ -43,7 +43,7 @@ public class PriceController : ControllerBase
                 return new BadRequestResult();
             }
 
-            Price price = await _priceParser.GetPriceAsync(cardSet, default);
+            Price price = await _priceProvider.GetPriceAsync(cardSet);
             return new OkObjectResult(price);
         }
         catch (Exception e)
@@ -55,7 +55,7 @@ public class PriceController : ControllerBase
 
 
     [HttpPost(Name = "FillPrices")]
-    public async Task<ActionResult> FillPrices()
+    public async Task<ActionResult> FillPricesAsync()
     {
         try
         {
@@ -68,7 +68,7 @@ public class PriceController : ControllerBase
             {
                 try
                 {
-                    Price price = await _priceParser.GetPriceAsync(cardRequest, default);
+                    Price price = await _priceProvider.GetPriceAsync(cardRequest);
                     if (cardRequest.Prices.MaxBy(x => x.CreateDate)?.Value != price.Value)
                     {
                         _dbContext.Prices.Add(price);
