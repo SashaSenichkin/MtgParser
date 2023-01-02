@@ -232,6 +232,76 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "DebugParseMany",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Check parse on power field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.card.power).to.eql(\"5\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/ParseMany/ParceAllCardNamesToDb",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ParseMany",
+						"ParceAllCardNamesToDb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DebugFillPrices",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Check parse on power field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.card.power).to.eql(\"5\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/Price/FillPrices",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"Price",
+						"FillPrices"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
