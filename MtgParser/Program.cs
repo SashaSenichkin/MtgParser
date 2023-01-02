@@ -18,9 +18,12 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
        .Enrich.FromLogContext()
        .WriteTo.Console());
         
-builder.Services.AddScoped<CardSetParser>();
 builder.Services.AddScoped<PriceParser>();
+builder.Services.AddScoped<CardSetParser>();
+
+builder.Services.AddScoped<IPriceProvider, PriceProvider>();
 builder.Services.AddScoped<ICardSetProvider, CardSetProvider>();
+
 
 string? connectionString = builder.Configuration.GetConnectionString("MtgContext");
 
