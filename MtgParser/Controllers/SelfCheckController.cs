@@ -22,7 +22,7 @@ public class SelfCheckController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet(Name = "GetUnparsedCards")]
-    public async Task<List<CardName>> GetUnparsedCards()
+    public async Task<List<CardName>> GetUnparsedCardsAsync()
     {
         List<CardName> source = await _dbContext.CardsNames.ToListAsync();
         List<Card> cards = await _dbContext.Cards.ToListAsync();

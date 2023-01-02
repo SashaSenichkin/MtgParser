@@ -51,7 +51,7 @@ public class ParseManyController : ControllerBase
     /// <param name="dataRaw"></param>
     /// <returns></returns>
     [HttpGet(Name = "GetCardNamesInfo")]
-    public async Task<IEnumerable<CardSet>> GetCardNamesInfo(string dataRaw)
+    public async Task<IEnumerable<CardSet>> GetCardNamesInfoAsync(string dataRaw)
     {
         try
         {
@@ -100,14 +100,14 @@ public class ParseManyController : ControllerBase
     /// </summary>
     /// <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
     [HttpPost(Name = "ParceAllCardNamesToDb")]
-    public async Task<bool> ParceAllCardNamesToDb()
+    public async Task<bool> ParceAllCardNamesToDbAsync()
     {
         try
         {
             List<CardName> source = _dbContext.CardsNames.ToList();
             foreach (CardName cardRequest in source)
             {
-                await ProcessOneCardName(cardRequest);
+                await ProcessOneCardNameAsync(cardRequest);
             }
             
             await _dbContext.SaveChangesAsync();
@@ -122,7 +122,7 @@ public class ParseManyController : ControllerBase
         }
     }
 
-    private async Task ProcessOneCardName(CardName cardRequest)
+    private async Task ProcessOneCardNameAsync(CardName cardRequest)
     {
         if (string.IsNullOrEmpty(cardRequest.SeekName))
         {

@@ -21,7 +21,7 @@ public class SelfFixController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPost(Name = "TrimCardNames")]
-    public async Task<bool> TrimCardNames()
+    public async Task<bool> TrimCardNamesAsync()
     {
         DbSet<CardName> source = _dbContext.CardsNames;
         foreach (CardName item in source)
