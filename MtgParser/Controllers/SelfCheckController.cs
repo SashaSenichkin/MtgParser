@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MtgParser.Context;
@@ -27,5 +28,15 @@ public class SelfCheckController : ControllerBase
         List<Card> cards = await _dbContext.Cards.ToListAsync();
 
         return source.Where(x => cards.All(y => !x.IsCardEqual(y))).ToList();
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet(Name = "GetVersion")]
+    public string GetVersion()
+    {
+        return Assembly.GetExecutingAssembly().GetName().Version.ToString();
     }
 }
