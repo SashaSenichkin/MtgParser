@@ -10,7 +10,7 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace MtgParser.Provider;
 
-public class CardSetProvider : ICardSetProvider
+public class CardSetProvider : BaseProvider, ICardSetProvider
 {
     private readonly MtgContext _context;
     private readonly CardSetParser _parser;
@@ -138,13 +138,5 @@ public class CardSetProvider : ICardSetProvider
         };
         
         return result;
-    }
-    
-    private static async Task<IDocument> GetHtmlAsync(string path)
-    {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        AngleSharp.IConfiguration config = Configuration.Default.WithDefaultLoader();
-        IBrowsingContext context = BrowsingContext.New(config);
-        return await context.OpenAsync(path);
     }
 }
