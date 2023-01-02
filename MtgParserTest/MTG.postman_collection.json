@@ -47,7 +47,7 @@
 			"response": []
 		},
 		{
-			"name": "SelfCheck",
+			"name": "SelfCheck GetUnparsedCards",
 			"event": [
 				{
 					"listen": "test",
@@ -73,6 +73,38 @@
 					"path": [
 						"SelfCheck",
 						"GetUnparsedCards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SelfCheck GetVersion",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/SelfCheck/GetVersion",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"SelfCheck",
+						"GetVersion"
 					]
 				}
 			},
