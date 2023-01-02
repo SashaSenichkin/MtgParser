@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using AngleSharp.Dom;
+using MtgParser.Context;
 using MtgParser.Model;
 
 using IAngleConfig = AngleSharp.IConfiguration;
@@ -10,11 +11,11 @@ namespace MtgParser.ParseLogic;
 
 public class PriceParser : BaseParser
 {
-    private readonly IConfigurationSection _urlsConfig;
+    private readonly MtgContext _context;
 
-    public PriceParser(IConfiguration fullConfig)
+    public PriceParser(MtgContext context)
     {
-        _urlsConfig = fullConfig.GetSection("ExternalUrls");
+        _context = context;
     }
 
     /// <summary>
@@ -23,13 +24,10 @@ public class PriceParser : BaseParser
     /// <param name="cardSet">ссылка на физическую карту. фактически, достаточно названия и аббревиатуры сета</param>
     /// <returns>цена карты</returns>
     /// <exception cref="Exception">полученные исключение просто перебрасываются выше, с выводом в консоль</exception>
-    public async Task<Price> GetPriceAsync(CardSet cardSet, IDocument doc)
+    public Price GetPrice(CardSet cardSet, IDocument doc)
     {
         try
         {
-            string searchCardName = cardSet.Card.Name.Replace(' ', '+');
-            //IDocument doc = await GetHtmlAsync($"{_urlsConfig[GoldfishPriceConfig] + cardSet.Set.SearchText}/{searchCardName}" );
- 
             Price? result = GetParsedPrice(doc);
             if (result == null)
             {
