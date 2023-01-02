@@ -1,4 +1,5 @@
-﻿using AngleSharp.Dom;
+﻿using System.Diagnostics.CodeAnalysis;
+using AngleSharp.Dom;
 using MtgParser.Context;
 using MtgParser.Model;
 using System.Text;
@@ -30,14 +31,22 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
     {
         try
         {
-            CardSet? storedCardSet = await GetCardSetFromDbAsync(cardName);
-            if (storedCardSet != null )
+            
+            Card? storedCard = await GetCardFromDbAsync(cardName.SeekName);
+            Set? storedSet = await GetSetFromDbAsync(cardName.SetShort);
+            
+            if (storedCard != null && storedSet != null)
             {
-                return storedCardSet;
+                CardSet? storedCardSet = await GetCardSetFromDbAsync(cardName, storedSet, storedCard);
+                if (storedCardSet != null )
+                {
+                    return storedCardSet;
+                }
             }
 
+
             IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + cardName.SeekName + $"&Grp={cardName.SetShort}");
-            Card card = _parser.GetCard(doc);
+            Card? card = storedCard ?? _parser.GetCard(doc);
             if (card == null)
             {
                 throw new Exception($"can't find card {cardName.SeekName}");
@@ -48,8 +57,8 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
                 return new CardSet() { Card = card };
             }
             
-            Set set = await GetSetFromWebAsync(cardName.SetShort, doc);
-            if (set.ShortName != cardName.SetShort)
+            Set? set = storedSet ?? await GetSetFromWebAsync(cardName.SetShort, doc);
+            if (set == null || set.ShortName != cardName.SetShort)
             {
                 throw new Exception($"Проверьте название сета предполагаемый вариант {set.ShortName}({set.FullName}) предложенный {cardName.SetShort}");
             }
@@ -81,6 +90,7 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
         return _parser.GetSet(candidates.defaultOption);
     }
 
+    [SuppressMessage("ReSharper.DPA", "DPA0000: DPA issues")]
     private async Task<CardSet?> GetCardSetFromWebAsync(Set set, Card card, CardName cardName, IDocument doc)
     {
         CardSet result = _parser.GetCardSet(doc);
@@ -92,6 +102,7 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
         return result;
     }
     
+    [SuppressMessage("ReSharper.DPA", "DPA0000: DPA issues")]
     private async Task<Card?> GetCardFromDbAsync(string cardName)
     {
         Card? card = await _context.Cards.FirstOrDefaultAsync(x => 
@@ -102,30 +113,20 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
     
     private async Task<Set?> GetSetFromDbAsync(string setShortName)
     {
-        Set? storedSet = await _context.Sets.FirstOrDefaultAsync(x => x.ShortName.Equals(setShortName));
-        return storedSet;
+        return await _context.Sets.FirstOrDefaultAsync(x => x.ShortName.Equals(setShortName));
     }
     
-    private async Task<CardSet?> GetCardSetFromDbAsync(CardName cardName)
+    
+    private async Task<CardSet?> GetCardSetFromDbAsync(CardName cardName, Set set, Card card)
     {
-        Set? set = await GetSetFromDbAsync(cardName.SetShort);
-        Card? card = await GetCardFromDbAsync(cardName.SeekName);
-
-        if (set == null || card == null)
-        {
-            return null;
-        }
-        
         CardSet? storedSet = await _context.CardsSets.FirstOrDefaultAsync(x => x.Card.Id == card.Id && x.Set.Id == set.Id);
-        if (storedSet == null)
+        if (storedSet != null)
         {
-            return null;
-        }
-        
-        //TODO: add valid difference condition
-        if ((storedSet.IsFoil == 1) == cardName.IsFoil && storedSet.Quantity == cardName.Quantity)
-        {
-            return storedSet;
+            //TODO: add valid difference condition
+            if ((storedSet.IsFoil == 1) == cardName.IsFoil && storedSet.Quantity == cardName.Quantity)
+            {
+                return storedSet;
+            }
         }
 
         CardSet result = new()

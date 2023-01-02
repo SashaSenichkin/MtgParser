@@ -95,13 +95,6 @@ public class CardSetParser : BaseParser
     public Set GetSet(IElement element)
     {
         IHtmlImageElement? imgData = element.QuerySelector("img") as IHtmlImageElement;
-        
-        Set? set = _context.Sets.FirstOrDefault(x => x.ShortName == imgData.AlternativeText);
-        if (set != null)
-        {
-            return set;
-        }
-        
         if (imgData.AlternativeText == null || imgData.Source == null)
         {
             throw new Exception($"can't create set.. not enough data in " + element);
