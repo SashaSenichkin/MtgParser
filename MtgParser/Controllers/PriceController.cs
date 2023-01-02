@@ -7,7 +7,7 @@ using MtgParser.ParseLogic;
 namespace MtgParser.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 public class PriceController : ControllerBase
 {
     private readonly PriceParser _priceParser;
