@@ -128,10 +128,8 @@ public class CardSetParser : BaseParser
             .Where(x => x != null)
             .ToList()!;
         
-        bool isRusCard = cellsText.Length > 1;
         card.Text = text;
-        card.TextRus = isRusCard ? cellsText[1].TextContent : string.Empty;
-        card.IsRus = isRusCard;
+        card.TextRus = cellsText[1].TextContent;
         card.Keywords = keywords;
     }
 

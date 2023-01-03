@@ -44,7 +44,6 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
                 }
             }
 
-
             IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + cardName.SeekName + $"&Grp={cardName.SetShort}");
             Card? card = storedCard ?? _parser.GetCard(doc);
             if (card == null)
@@ -52,6 +51,7 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
                 throw new Exception($"can't find card {cardName.SeekName}");
             }
 
+            card.IsRus = string.IsNullOrEmpty(cardName.Name);
             if (string.IsNullOrEmpty(cardName.SetShort))
             {
                 return new CardSet() { Card = card };
@@ -104,8 +104,8 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
     private async Task<Card?> GetCardFromDbAsync(string cardName)
     {
         Card? card = await _context.Cards.FirstOrDefaultAsync(x => 
-            !string.IsNullOrEmpty(x.Name) && x.Name.Contains(cardName)
-            || !string.IsNullOrEmpty(x.NameRus) && x.NameRus.Contains(cardName));
+            !string.IsNullOrEmpty(x.Name) && !x.IsRus && x.Name.Contains(cardName)
+            || !string.IsNullOrEmpty(x.NameRus) && x.IsRus && x.NameRus.Contains(cardName));
         return card;
     }
     
