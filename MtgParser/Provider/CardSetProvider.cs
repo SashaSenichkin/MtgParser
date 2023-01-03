@@ -63,7 +63,7 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
                 throw new Exception($"Проверьте название сета предполагаемый вариант {set.ShortName}({set.FullName}) предложенный {cardName.SetShort}");
             }
 
-            CardSet? result = await GetCardSetFromWebAsync(set, card, cardName, doc);
+            CardSet result = GetCardSetFromWeb(set, card, cardName, doc);
             return result;
         }
         catch (Exception e)
@@ -91,7 +91,7 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
     }
 
     [SuppressMessage("ReSharper.DPA", "DPA0000: DPA issues")]
-    private async Task<CardSet?> GetCardSetFromWebAsync(Set set, Card card, CardName cardName, IDocument doc)
+    private CardSet GetCardSetFromWeb(Set set, Card card, CardName cardName, IDocument doc)
     {
         CardSet result = _parser.GetCardSet(doc);
         result.Set = set;
