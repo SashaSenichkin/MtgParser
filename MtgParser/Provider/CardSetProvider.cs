@@ -119,16 +119,21 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
     
     private async Task<CardSet?> GetCardSetFromDbAsync(CardName cardName, Set set, Card card)
     {
-        CardSet? storedSet = await _context.CardsSets.FirstOrDefaultAsync(x => x.Card.Id == card.Id && x.Set.Id == set.Id);
-        if (storedSet != null)
+        CardSet? storedSet = await _context.CardsSets
+                                           .Include(x => x.Rarity)
+                                           .FirstOrDefaultAsync(x => x.Card.Id == card.Id && x.Set.Id == set.Id);
+        
+        if (storedSet == null)
         {
-            //TODO: add valid difference condition
-            if ((storedSet.IsFoil == 1) == cardName.IsFoil && storedSet.Quantity == cardName.Quantity)
-            {
-                return storedSet;
-            }
+            return null;
         }
-
+        
+        //TODO: add valid difference condition
+        if ((storedSet.IsFoil == 1) == cardName.IsFoil && storedSet.Quantity == cardName.Quantity)
+        {
+            return storedSet;
+        }
+        
         CardSet result = new()
         {
             Set = set,
