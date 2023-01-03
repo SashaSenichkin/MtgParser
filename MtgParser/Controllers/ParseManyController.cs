@@ -135,14 +135,14 @@ public class ParseManyController : ControllerBase
             CardSet cardSet = await _cardSetProvider.GetCardSetAsync(cardRequest);
             if (cardSet.Id == default)
             {
-                _logger.LogInformation($"add card {cardSet.Card.Name} {cardSet.Card.NameRus} {cardSet.Rarity.Name} + {cardSet.Set.ShortName}");
+                _logger.LogInformation("add card {CardName} {CardNameRus} {Rarity} + {SetShortName}", cardSet.Card.Name, cardSet.Card.NameRus, cardSet.Rarity.Name, cardSet.Set.ShortName);
                 await _dbContext.CardsSets.AddAsync(cardSet);
             }
         }
         catch (Exception e)
         {
             _logger.LogError("error on card {Name} {SetShort} error {Message}",
-                            cardRequest.Name ?? cardRequest.NameRus,
+                            cardRequest.SeekName,
                             cardRequest.SetShort,
                             e.Message + Environment.NewLine + e.StackTrace);
         }
