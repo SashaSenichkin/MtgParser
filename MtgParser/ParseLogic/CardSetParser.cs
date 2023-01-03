@@ -13,7 +13,7 @@ public class CardSetParser : BaseParser
 {
     private readonly MtgContext _context;
 
-    private static readonly string[] CellSelectorMain = {"SearchCardInfoText", ".SearchCardTextDiv"};
+    private static readonly string[] CellSelectorMain = {".SearchCardInfoText", ".SearchCardTextDiv"};
     private const string CellSelectorInfo = ".SearchCardInfoDIV";
     private const string FullTableInfo = ".NoteDiv";
     
@@ -37,13 +37,13 @@ public class CardSetParser : BaseParser
         foreach (string selector in CellSelectorMain)
         {
             cellsText = doc.QuerySelectorAll(selector);
-            if (cellsText != null)
+            if (cellsText.Any())
             {
                 break;
             }
         }
 
-        if (cellsText == null)
+        if (!cellsText.Any())
         {
             throw new Exception($"can't find text node in {doc.Source}");
         }
