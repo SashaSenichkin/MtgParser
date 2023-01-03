@@ -1,10 +1,5 @@
 ﻿using System.Globalization;
-using System.Text;
-using AngleSharp;
 using AngleSharp.Dom;
-using AngleSharp.Html.Dom;
-using AngleSharp.Text;
-using Microsoft.Extensions.Configuration;
 using MtgParser.Context;
 using MtgParser.Model;
 
@@ -16,14 +11,8 @@ namespace MtgParser.ParseLogic;
 
 public class PriceParser : BaseParser
 {
-    private readonly IConfigurationSection _urlsConfig;
-
-    private const string GoldfishPriceConfig = "PriceApi";
-
-    public PriceParser(IConfiguration fullConfig)
-    {
-        _urlsConfig = fullConfig.GetSection("ExternalUrls");
-    }
+    private const string PriceSelector = ".price-box-price";
+    
 
     /// <summary>
     /// Получение цены для физической карты
@@ -31,13 +20,10 @@ public class PriceParser : BaseParser
     /// <param name="cardSet">ссылка на физическую карту. фактически, достаточно названия и аббревиатуры сета</param>
     /// <returns>цена карты</returns>
     /// <exception cref="Exception">полученные исключение просто перебрасываются выше, с выводом в консоль</exception>
-    public async Task<Price> GetPriceAsync(CardSet cardSet)
+    public Price GetPrice(CardSet cardSet, IDocument doc)
     {
         try
         {
-            string searchCardName = cardSet.Card.Name.Replace(' ', '+');
-            IDocument doc = await GetHtmlAsync($"{_urlsConfig[GoldfishPriceConfig] + cardSet.Set.SearchText}/{searchCardName}" );
- 
             Price? result = GetParsedPrice(doc);
             if (result == null)
             {
@@ -57,7 +43,7 @@ public class PriceParser : BaseParser
     
     private static Price? GetParsedPrice(IDocument doc)
     {
-        IElement? priceBox = doc.QuerySelector(".price-box-price");
+        IElement? priceBox = doc.QuerySelector(PriceSelector);
         if (priceBox == null)
         {
             return null;

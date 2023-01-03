@@ -29,4 +29,24 @@ public class CardName : BaseModel
     /// Аббревиатура сета
     /// </summary>
     public string SetShort { get; set; }
+    
+    /// <summary>
+    /// use it to get word to seek in search engine
+    /// </summary>
+    public string SeekName => String.IsNullOrEmpty(Name)?NameRus:Name;
+
+    public bool IsCardEqual(Card candidate)
+    {
+        if (!string.IsNullOrEmpty(candidate.Name) && !string.IsNullOrEmpty(Name) )
+        {
+            return candidate.Name.Contains(Name);
+        }
+        
+        if (!string.IsNullOrEmpty(candidate.NameRus) && !string.IsNullOrEmpty(NameRus) )
+        {
+            return candidate.NameRus.Contains(NameRus);
+        }
+
+        return false;
+    }
 }

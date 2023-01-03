@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using MtgParser.Context;
 using MtgParser.Model;
-using MtgParser.ParseLogic;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
+using MtgParser.Provider;
+using Newtonsoft.Json;
 
 namespace MtgParser.Controllers;
 
@@ -12,13 +10,13 @@ namespace MtgParser.Controllers;
 [Route("[controller]/[action]")]
 public class ParseManyController : ControllerBase
 {
-    private readonly CardSetParser _cardSetParser;
+    private readonly ICardSetProvider _cardSetProvider;
     private readonly ILogger<ParseManyController> _logger;
     private readonly MtgContext _dbContext;
     
-    public ParseManyController(MtgContext dbContext, CardSetParser cardSetParser, ILogger<ParseManyController> logger)
+    public ParseManyController(MtgContext dbContext, ICardSetProvider cardSetProvider, ILogger<ParseManyController> logger)
     {
-        _cardSetParser = cardSetParser;
+        _cardSetProvider = cardSetProvider;
         _logger = logger;
         _dbContext = dbContext;
     }
@@ -46,6 +44,32 @@ public class ParseManyController : ControllerBase
             return false;
         }
     }
+
+    /// <summary>
+    /// получить информацию по именам для теста
+    /// </summary>
+    /// <param name="dataRaw"></param>
+    /// <returns></returns>
+    [HttpGet(Name = "GetCardNamesInfo")]
+    public async Task<IEnumerable<CardSet>> GetCardNamesInfoAsync(string dataRaw)
+    {
+        try
+        {
+            CardName[]? data = JsonConvert.DeserializeObject<CardName[]>(dataRaw);
+            List<CardSet> result = new();
+            foreach (CardName card in data)
+            {
+                result.Add(await _cardSetProvider.GetCardSetAsync(card));
+            }
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
     
     /// <summary>
     /// удалить все данные, кроме справочников Rarity, Keywords и вручную заполняемой таблицы CardNames
@@ -60,7 +84,7 @@ public class ParseManyController : ControllerBase
             _dbContext.Prices.RemoveRange(_dbContext.Prices);
             _dbContext.Cards.RemoveRange(_dbContext.Cards);
             _dbContext.Sets.RemoveRange(_dbContext.Sets);
-
+            
             _dbContext.SaveChanges();
             return true;
         }
@@ -76,14 +100,14 @@ public class ParseManyController : ControllerBase
     /// </summary>
     /// <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
     [HttpPost(Name = "ParceAllCardNamesToDb")]
-    public async Task<bool> ParceAllCardNamesToDb()
+    public async Task<bool> ParceAllCardNamesToDbAsync()
     {
         try
         {
             List<CardName> source = _dbContext.CardsNames.ToList();
             foreach (CardName cardRequest in source)
             {
-                await ProcessOneCardName(cardRequest);
+                await ProcessOneCardNameAsync(cardRequest);
             }
             
             await _dbContext.SaveChangesAsync();
@@ -98,21 +122,27 @@ public class ParseManyController : ControllerBase
         }
     }
 
-    private async Task ProcessOneCardName(CardName cardRequest)
+    private async Task ProcessOneCardNameAsync(CardName cardRequest)
     {
+        if (string.IsNullOrEmpty(cardRequest.SeekName))
+        {
+            _logger.LogWarning("empty request on id {Id}", cardRequest.Id);
+            return;
+        }
+        
         try
         {
-            CardSet cardSet = await _cardSetParser.GetCardSetAsync(cardRequest);
+            CardSet cardSet = await _cardSetProvider.GetCardSetAsync(cardRequest);
             if (cardSet.Id == default)
             {
-                _logger.LogInformation($"add card {cardSet.Card.Name} {cardSet.Card.NameRus} {cardSet.Rarity.Name} + {cardSet.Set.ShortName}");
+                _logger.LogInformation("add card {CardName} {CardNameRus} {Rarity} + {SetShortName}", cardSet.Card.Name, cardSet.Card.NameRus, cardSet.Rarity.Name, cardSet.Set.ShortName);
                 await _dbContext.CardsSets.AddAsync(cardSet);
             }
         }
         catch (Exception e)
         {
-            _logger.LogError("error on card {Name}  {SetShort} error {Message}",
-                            cardRequest.Name ?? cardRequest.NameRus,
+            _logger.LogError("error on card {Name} {SetShort} error {Message}",
+                            cardRequest.SeekName,
                             cardRequest.SetShort,
                             e.Message + Environment.NewLine + e.StackTrace);
         }

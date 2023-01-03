@@ -1,9 +1,7 @@
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using MtgParser.Context;
 using MtgParser.ParseLogic;
+using MtgParser.Provider;
 using Serilog;
 
 
@@ -20,8 +18,12 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
        .Enrich.FromLogContext()
        .WriteTo.Console());
         
-builder.Services.AddScoped<CardSetParser>();
 builder.Services.AddScoped<PriceParser>();
+builder.Services.AddScoped<CardSetParser>();
+
+builder.Services.AddScoped<IPriceProvider, PriceProvider>();
+builder.Services.AddScoped<ICardSetProvider, CardSetProvider>();
+
 
 string? connectionString = builder.Configuration.GetConnectionString("MtgContext");
 

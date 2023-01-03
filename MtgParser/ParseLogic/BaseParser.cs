@@ -1,9 +1,4 @@
-﻿using System.Text;
-using AngleSharp;
-using AngleSharp.Dom;
-using IConfiguration = AngleSharp.IConfiguration;
-
-namespace MtgParser.ParseLogic;
+﻿namespace MtgParser.ParseLogic;
 
 public abstract class BaseParser
 {
@@ -22,21 +17,14 @@ public abstract class BaseParser
         int separatorIndex = source.IndexOf(separator, StringComparison.Ordinal);
         if (separatorIndex < 0)
         {
-            return (source, string.Empty);
+            return (source.Trim('\r', '\n', '\t', ' '), string.Empty);
         }
         
-        string left = source[..separatorIndex].Trim();
-        string right = source[separatorIndex..].Trim('/', ' ');
+        string left = source[..separatorIndex].Trim('\r', '\n', '\t', ' ');
+        string right = source[separatorIndex..].Trim('\r', '\n','\t', '/', ' ');
         return left != right ? (left, right) : (left, string.Empty);
     }
-
-    protected static async Task<IDocument> GetHtmlAsync(string path)
-    {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        IConfiguration config = Configuration.Default.WithDefaultLoader();
-        IBrowsingContext context = BrowsingContext.New(config);
-        return await context.OpenAsync(path);
-    }
+    
 
     protected static string GetSubStringAfterChar(string text, params char[] separators)
     {
