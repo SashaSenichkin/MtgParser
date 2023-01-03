@@ -17,11 +17,11 @@ public abstract class BaseParser
         int separatorIndex = source.IndexOf(separator, StringComparison.Ordinal);
         if (separatorIndex < 0)
         {
-            return (source, string.Empty);
+            return (source.Trim('\r', '\n', '\t', ' '), string.Empty);
         }
         
-        string left = source[..separatorIndex].Trim('\r', '\n', ' ');
-        string right = source[separatorIndex..].Trim('\r', '\n', '/', ' ');
+        string left = source[..separatorIndex].Trim('\r', '\n', '\t', ' ');
+        string right = source[separatorIndex..].Trim('\r', '\n','\t', '/', ' ');
         return left != right ? (left, right) : (left, string.Empty);
     }
     
