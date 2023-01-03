@@ -89,8 +89,7 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
         
         return _parser.GetSet(candidates.defaultOption);
     }
-
-    [SuppressMessage("ReSharper.DPA", "DPA0000: DPA issues")]
+    
     private CardSet GetCardSetFromWeb(Set set, Card card, CardName cardName, IDocument doc)
     {
         CardSet result = _parser.GetCardSet(doc);
@@ -102,7 +101,6 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
         return result;
     }
     
-    [SuppressMessage("ReSharper.DPA", "DPA0000: DPA issues")]
     private async Task<Card?> GetCardFromDbAsync(string cardName)
     {
         Card? card = await _context.Cards.FirstOrDefaultAsync(x => 
