@@ -30,13 +30,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="appsettings.json" />
-      <AdditionalFiles Include="appsettings.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </AdditionalFiles>
-    </ItemGroup>
-
-    <ItemGroup>
       <Folder Include="Migrations" />
     </ItemGroup>
 
