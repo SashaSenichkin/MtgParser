@@ -1,0 +1,7 @@
+2023-01-03 14:26:44.029 +03:00 [INF] Now listening on: http://localhost:5079
+2023-01-03 14:26:44.056 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2023-01-03 14:26:44.056 +03:00 [INF] Hosting environment: Development
+2023-01-03 14:26:44.057 +03:00 [INF] Content root path: C:\Projects\Mtg\ImageService
+2023-01-03 14:26:49.239 +03:00 [WRN] Failed to determine the https port for redirect.
+2023-01-03 14:26:49.243 +03:00 [INF] HTTP GET / responded 404 in 4.0333 ms
+2023-01-03 14:26:49.359 +03:00 [INF] HTTP GET /favicon.ico responded 404 in 0.9273 ms
