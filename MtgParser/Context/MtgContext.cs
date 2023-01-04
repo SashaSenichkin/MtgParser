@@ -15,6 +15,10 @@ public class MtgContext : DbContext
     public DbSet<Card> Cards { get; set; }
     public DbSet<CardSet> CardsSets { get; set; }
     public DbSet<CardName> CardsNames { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<Permission> Permissions { get; set; }
+    public DbSet<Order> Orders { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
