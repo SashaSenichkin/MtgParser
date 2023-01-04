@@ -10,9 +10,14 @@ services:
             
     parser:
         build: ./MtgParser
-        container_name: azure-vote-front
         environment:
-            ASPNETCORE_ENVIRONMENT: "Development"
+            ASPNETCORE_ENVIRONMENT: "Docker"
         ports: 
-            - "80:80"
+            - "5084:80"
             
+    image-service:
+        build: ./ImageService
+        environment:
+            ASPNETCORE_ENVIRONMENT: "Docker"
+        ports: 
+            - "5085:80"
