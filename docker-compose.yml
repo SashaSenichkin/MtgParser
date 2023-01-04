@@ -1,0 +1,18 @@
+version: "3"
+services:
+    db:
+        image: "mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04"
+        environment:
+            SA_PASSWORD: "${MSSQLPASSWORD}"
+            ACCEPT_EULA: "Y"
+        ports: 
+            - "1433:1433"
+            
+    parser:
+        build: ./MtgParser
+        container_name: azure-vote-front
+        environment:
+            ASPNETCORE_ENVIRONMENT: "Development"
+        ports: 
+            - "80:80"
+            
