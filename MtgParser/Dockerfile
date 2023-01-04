@@ -5,10 +5,8 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["MtgParser/MtgParser.csproj", "MtgParser/"]
-RUN dotnet restore "MtgParser/MtgParser.csproj"
 COPY . .
-WORKDIR "/src/MtgParser"
+RUN dotnet restore "MtgParser.csproj"
 RUN dotnet build "MtgParser.csproj" -c Release -o /app/build
 
 FROM build AS publish
