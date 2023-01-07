@@ -3,13 +3,13 @@
     <option name="AZURE_WEB_APP_PROJECT" value="$PROJECT_DIR$/MtgParser/MtgParser.csproj" />
     <option name="AZURE_WEB_APP_SUBSCRIPTION_ID" value="d3d31658-3c03-449f-ae87-bbafb94c799e" />
     <option name="AZURE_WEB_APP_IS_CREATE_APP" value="0" />
-    <option name="AZURE_WEB_APP_ID" value="/subscriptions/d3d31658-3c03-449f-ae87-bbafb94c799e/resourceGroups/test/providers/Microsoft.Web/sites/mtgForBoris" />
+    <option name="AZURE_WEB_APP_ID" value="/subscriptions/d3d31658-3c03-449f-ae87-bbafb94c799e/resourceGroups/rs-20221116232858/providers/Microsoft.Web/sites/mtgForBoris" />
     <option name="AZURE_WEB_APP_NAME" value="" />
     <option name="AZURE_WEB_APP_IS_CREATE_RESOURCE_GROUP" value="0" />
     <option name="AZURE_WEB_APP_RESOURCE_GROUP_NAME" value="" />
     <option name="AZURE_WEB_APP_OPERATING_SYSTEM" value="WINDOWS" />
     <option name="AZURE_WEB_APP_IS_CREATE_APP_SERVICE_PLAN" value="0" />
-    <option name="AZURE_WEB_APP_SERVICE_PLAN_ID" value="/subscriptions/d3d31658-3c03-449f-ae87-bbafb94c799e/resourceGroups/test/providers/Microsoft.Web/serverfarms/ASP-test-9e53" />
+    <option name="AZURE_WEB_APP_SERVICE_PLAN_ID" value="/subscriptions/d3d31658-3c03-449f-ae87-bbafb94c799e/resourceGroups/rs-20221116232858/providers/Microsoft.Web/serverfarms/ASP-test-9e53" />
     <option name="AZURE_WEB_APP_SERVICE_PLAN_NAME" value="" />
     <option name="AZURE_WEB_APP_LOCATION" value="eastus" />
     <option name="AZURE_WEB_APP_PRICING_TIER" value="" />
