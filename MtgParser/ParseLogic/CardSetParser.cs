@@ -129,7 +129,11 @@ public class CardSetParser : BaseParser
             .ToList()!;
         
         card.Text = text;
-        card.TextRus = cellsText[1].TextContent;
+        if (cellsText.Length > 1)
+        {
+            card.TextRus = cellsText[1].TextContent;
+        }
+        
         card.Keywords = keywords;
     }
 
