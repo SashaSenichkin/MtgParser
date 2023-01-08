@@ -23,8 +23,8 @@ WebApplication app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseSerilogRequestLogging();   
-
+app.UseSerilogRequestLogging();
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
