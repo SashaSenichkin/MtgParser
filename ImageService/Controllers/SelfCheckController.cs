@@ -1,6 +1,7 @@
 using System.Reflection;
 using ImageService.Context;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using static System.IO.File;
 
 namespace ImageService.Controllers;
@@ -29,9 +30,9 @@ public class SelfCheckController : ControllerBase
     }
     
     [HttpGet]
-    public string[] CheckRusImages()
+    public async Task<string[]> CheckRusImages()
     {
-        List<Card> allCards = _dbContext.Cards.ToList();
+        List<Card> allCards = await _dbContext.Cards.ToListAsync();
         IEnumerable<string> result = allCards.Where(x => x.IsRus && !x.Img.Contains("_RUS/")).Select(x => x.Img)
                               .Union(allCards.Where(x => !x.IsRus && x.Img.Contains("_RUS/")).Select(x => x.Img));
         
