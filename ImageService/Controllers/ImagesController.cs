@@ -43,14 +43,6 @@ public class ImagesController : ControllerBase
     }
 
     [HttpGet]
-    public string[] CheckCardImages()
-    {
-        List<Card> allCards = _dbContext.Cards.ToList();
-        string[] result = allCards.Where(x => !Exists(x.Img)).Select(x => x.Img).ToArray();
-        return result;
-    }
-    
-    [HttpGet]
     public void SetCardImages()
     {
         List<Card> allCards = _dbContext.Cards.ToList();
