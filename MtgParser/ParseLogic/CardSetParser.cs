@@ -22,7 +22,7 @@ public class CardSetParser : BaseParser
         _context = context;
     }
 
-    public Card? GetCard(IDocument doc)
+    public Card? GetCard(IDocument doc, bool isRus)
     {
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
         if (!cellsInfo.Any())
@@ -30,7 +30,11 @@ public class CardSetParser : BaseParser
             return null;
         }
         
-        Card result = new();
+        Card result = new()
+        {
+            IsRus = isRus
+        };
+        
         SetCardData(result, cellsInfo);
 
         IHtmlCollection<IElement>? cellsText = null;
@@ -51,11 +55,21 @@ public class CardSetParser : BaseParser
         SetCardTextAndKeywords(result, cellsText);
         
         IHtmlCollection<IElement> fullTable = doc.QuerySelectorAll(FullTableInfo);
-        if (fullTable.First().QuerySelector("img") is IHtmlImageElement img)
+        if (fullTable.First().QuerySelector("img") is not IHtmlImageElement img)
         {
-            result.Img = img.Source.Replace("_middle", "");
+            return result;
         }
 
+        string defaultImage = img.Source.Replace("_middle", "");
+        if (!isRus)
+        {
+            result.Img = defaultImage;
+            return result;
+        }
+
+        int endSetIndex = defaultImage.LastIndexOf('/');
+        string rusImage = defaultImage[..endSetIndex] + "_RUS" + defaultImage[endSetIndex..];
+        result.Img = rusImage;
         return result;
     }
     
