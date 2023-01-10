@@ -20,7 +20,7 @@ public class Tests
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         
-        var contextOptions = new DbContextOptionsBuilder<MtgContext>()
+        DbContextOptions<MtgContext> contextOptions = new DbContextOptionsBuilder<MtgContext>()
             .UseInMemoryDatabase("ReferencesProviderTest")
             .ConfigureWarnings(b => b.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
@@ -40,22 +40,22 @@ public class Tests
 
         _dbContext.SaveChanges();
         
-        var appSettings = @"{""ExternalUrls"": {""BaseMtgRu"": ""http://www.mtg.ru/cards/search.phtml"",""MtgRuInfoTable"": ""http://www.mtg.ru/cards/card_info_table.phtml?Action=ShowCardVersion&card=""}}";
+        const string appSettings = @"{""ExternalUrls"": {""BaseMtgRu"": ""http://www.mtg.ru/cards/search.phtml"",""MtgRuInfoTable"": ""http://www.mtg.ru/cards/card_info_table.phtml?Action=ShowCardVersion&card=""}}";
 
-        var builder = new ConfigurationBuilder();
+        ConfigurationBuilder builder = new ConfigurationBuilder();
         builder.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettings)));
 
-        var configuration= builder.Build();
+        IConfigurationRoot configuration= builder.Build();
         _cardSetParser = new CardSetParser(_dbContext);
     }
 
     private IDocument GetDocument(string sourceName, IBrowsingContext context)
     {
         const string upToProjectCases = "../../../TestCases";
-        var fileName = Path.Combine(Environment.CurrentDirectory, upToProjectCases, sourceName);
-        var sourceHtml = File.ReadAllText(fileName, Encoding.UTF8);
+        string fileName = Path.Combine(Environment.CurrentDirectory, upToProjectCases, sourceName);
+        string sourceHtml = File.ReadAllText(fileName, Encoding.UTF8);
         
-        var doc = context.OpenAsync(x => x.Content(sourceHtml));
+        Task<IDocument> doc = context.OpenAsync(x => x.Content(sourceHtml));
         doc.Wait();
         
         return doc.Result;
@@ -67,81 +67,93 @@ public class Tests
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Hazoret the Fervent.htm", context);
-        Card card = _cardSetParser.GetCard(doc);
-        
-        Assert.That(card.Toughness, Is.EqualTo("4"));
-        Assert.That(card.Power, Is.EqualTo("5"));
-        Assert.That(card.Cmc, Is.EqualTo("4"));
-        Assert.That(card.Color, Is.EqualTo("R"));
+        Card card = _cardSetParser.GetCard(doc, false);
+        Assert.Multiple(() =>
+        {
+            Assert.That(card.Toughness, Is.EqualTo("4"));
+            Assert.That(card.Power, Is.EqualTo("5"));
+            Assert.That(card.Cmc, Is.EqualTo("4"));
+            Assert.That(card.Color, Is.EqualTo("R"));
+        });
     }
-    
+
     [Test]
     public void CostXTest()
     {
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Gyrus Waker of Corpses.htm", context);
-        Card card = _cardSetParser.GetCard(doc);
-        
-        Assert.That(card.Toughness, Is.EqualTo("0"));
-        Assert.That(card.Power, Is.EqualTo("0"));
-        Assert.That(card.Cmc, Is.EqualTo("X, 3"));
-        Assert.That(card.Color, Is.EqualTo("B, R, G"));
+        Card card = _cardSetParser.GetCard(doc, false);
+        Assert.Multiple(() =>
+        {
+            Assert.That(card.Toughness, Is.EqualTo("0"));
+            Assert.That(card.Power, Is.EqualTo("0"));
+            Assert.That(card.Cmc, Is.EqualTo("X, 3"));
+            Assert.That(card.Color, Is.EqualTo("B, R, G"));
+        });
     }
-    
+
     [Test]
     public void InfinityPowerTest()
     {
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Infinity Elemental.htm", context);
-        Card card = _cardSetParser.GetCard(doc);
-        
-        Assert.That(card.Toughness, Is.EqualTo("5"));
-        Assert.That(card.Power, Is.EqualTo("/"));
-        Assert.That(card.Cmc, Is.EqualTo("7"));
-        Assert.That(card.Color, Is.EqualTo("R"));
+        Card card = _cardSetParser.GetCard(doc, false);
+        Assert.Multiple(() =>
+        {
+            Assert.That(card.Toughness, Is.EqualTo("5"));
+            Assert.That(card.Power, Is.EqualTo("/"));
+            Assert.That(card.Cmc, Is.EqualTo("7"));
+            Assert.That(card.Color, Is.EqualTo("R"));
+        });
     }
-    
+
     [Test]
     public void NoPowerTest()
     {
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("A Little Chat.htm", context);
-        Card card = _cardSetParser.GetCard(doc);
-        
-        Assert.That(card.Toughness, Is.EqualTo("-"));
-        Assert.That(card.Power, Is.EqualTo("-"));
-        Assert.That(card.Cmc, Is.EqualTo("2"));
-        Assert.That(card.Color, Is.EqualTo("U"));
+        Card card = _cardSetParser.GetCard(doc, false);
+        Assert.Multiple(() =>
+        {
+            Assert.That(card.Toughness, Is.EqualTo("-"));
+            Assert.That(card.Power, Is.EqualTo("-"));
+            Assert.That(card.Cmc, Is.EqualTo("2"));
+            Assert.That(card.Color, Is.EqualTo("U"));
+        });
     }
-    
+
     [Test]
     public void ArtifactTest()
     {
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Lucky Clove.htm", context);
-        Card card = _cardSetParser.GetCard(doc);
-        
-        Assert.That(card.Toughness, Is.EqualTo("-"));
-        Assert.That(card.Power, Is.EqualTo("-"));
-        Assert.That(card.Cmc, Is.EqualTo("2"));
-        Assert.That(card.Color, Is.EqualTo("-"));
+        Card card = _cardSetParser.GetCard(doc, false);
+        Assert.Multiple(() =>
+        {
+            Assert.That(card.Toughness, Is.EqualTo("-"));
+            Assert.That(card.Power, Is.EqualTo("-"));
+            Assert.That(card.Cmc, Is.EqualTo("2"));
+            Assert.That(card.Color, Is.EqualTo("-"));
+        });
     }
-    
+
     [Test]
     public void abstractLandTest()
     {
         using IBrowsingContext context = BrowsingContext.New(Configuration.Default);
 
         IDocument doc = GetDocument("Secluded Steppe.htm", context);
-        Card card = _cardSetParser.GetCard(doc);
-        
-        Assert.That(card.Toughness, Is.EqualTo("-"));
-        Assert.That(card.Power, Is.EqualTo("-"));
-        Assert.That(card.Cmc, Is.EqualTo("0"));
-        Assert.That(card.Color, Is.EqualTo("-"));
+        Card card = _cardSetParser.GetCard(doc, false);
+        Assert.Multiple(() =>
+        {
+            Assert.That(card.Toughness, Is.EqualTo("-"));
+            Assert.That(card.Power, Is.EqualTo("-"));
+            Assert.That(card.Cmc, Is.EqualTo("0"));
+            Assert.That(card.Color, Is.EqualTo("-"));
+        });
     }
 }

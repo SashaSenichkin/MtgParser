@@ -45,13 +45,12 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
             }
 
             IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + cardName.SeekName + $"&Grp={cardName.SetShort}");
-            Card? card = storedCard ?? _parser.GetCard(doc);
+            Card? card = storedCard ?? _parser.GetCard(doc, string.IsNullOrEmpty(cardName.Name));
             if (card == null)
             {
                 throw new Exception($"can't find card {cardName.SeekName}");
             }
 
-            card.IsRus = string.IsNullOrEmpty(cardName.Name);
             if (string.IsNullOrEmpty(cardName.SetShort))
             {
                 return new CardSet() { Card = card };

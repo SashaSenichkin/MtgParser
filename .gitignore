@@ -115,3 +115,4 @@ StyleCop.Cache
 /src_back/Itsk.ER.Sync.InstanceDatabase.SQLite/database/db_schema_patches.zip
 Itsk.ER.DC.Frontend/grunt
 MtgParser/logs/
+ImageService/logs/
