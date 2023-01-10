@@ -11,16 +11,23 @@ public class ImagesController : ControllerBase
 {
     private readonly MtgContext _dbContext;
     private readonly ILogger<ImagesController> _logger;
-    private readonly IConfiguration _fullConfig;
-
-    private const string MtgAddressPart = "http://www.mtg.ru/pictures";
-
-    public ImagesController(ILogger<ImagesController> logger, MtgContext dbContext, IConfiguration fullConfig)
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="dbContext"></param>
+    public ImagesController(ILogger<ImagesController> logger, MtgContext dbContext)
     {
-         _dbContext = dbContext;
+        _dbContext = dbContext;
         _logger = logger;
-        _fullConfig = fullConfig;
     }
+    
+    /// <summary>
+    /// Replace All db.Cards
+    /// </summary>
+    /// <param name="newRoot"></param>
+    /// <returns></returns>
     [HttpPost]
     public async Task<bool> SetCardImagePaths(string newRoot)
     {
@@ -42,6 +49,9 @@ public class ImagesController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// takes all pictures from Cards.img and save new to wwwroot
+    /// </summary>
     [HttpGet]
     public void SetCardImages()
     {
