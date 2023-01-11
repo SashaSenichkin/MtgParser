@@ -1,4 +1,3 @@
-using System.Reflection;
 using ImageService.Context;
 using Microsoft.AspNetCore.Mvc;
 using static System.IO.File;
@@ -53,7 +52,7 @@ public class ImagesController : ControllerBase
     /// takes all pictures from Cards.img and save new to wwwroot
     /// </summary>
     [HttpGet]
-    public void SetCardImages()
+    public void DownloadCardImages()
     {
         List<Card> allCards = _dbContext.Cards.ToList();
         Thread worker = new(() => SaveCardImages(allCards));

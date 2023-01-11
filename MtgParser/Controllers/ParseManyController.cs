@@ -100,7 +100,7 @@ public class ParseManyController : ControllerBase
     /// </summary>
     /// <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
     [HttpPost(Name = "ParceAllCardNamesToDb")]
-    public async Task<bool> ParceAllCardNamesToDbAsync()
+    public async Task<bool> ParseAllCardNamesToDbAsync()
     {
         try
         {
