@@ -1,0 +1,1 @@
+az acr build -t imageservice:v4 -r mtgregistry .
