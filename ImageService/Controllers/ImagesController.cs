@@ -23,12 +23,12 @@ public class ImagesController : ControllerBase
     }
     
     /// <summary>
-    /// Replace All db.Cards
+    /// Replace All db.Cards and db.Sets
     /// </summary>
     /// <param name="newRoot"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<bool> SetCardImagePaths(string newRoot)
+    public async Task<bool> SetImagesPaths(string newRoot)
     {
         try
         {
@@ -36,6 +36,12 @@ public class ImagesController : ControllerBase
             foreach (Card card in allCards)
             {
                 card.Img = GetNewFilePath(card.Img, newRoot);
+            }
+            
+            List<Set> allSets = _dbContext.Sets.ToList();
+            foreach (Set set in allSets)
+            {
+                set.SetImg = GetNewFilePath(set.SetImg, newRoot);
             }
 
             await _dbContext.SaveChangesAsync();
@@ -47,7 +53,7 @@ public class ImagesController : ControllerBase
             return false;
         }
     }
-
+    
     /// <summary>
     /// takes all pictures from Cards.img and save new to wwwroot
     /// </summary>
@@ -55,29 +61,41 @@ public class ImagesController : ControllerBase
     public void DownloadCardImages()
     {
         List<Card> allCards = _dbContext.Cards.ToList();
-        Thread worker = new(() => SaveCardImages(allCards));
+        Thread worker = new(() => SaveImages(allCards.Select(x => x.Img)));
         worker.Start();
     }
-
-    private async void SaveCardImages(List<Card> allCards)
+    
+    /// <summary>
+    /// takes all pictures from Cards.img and save new to wwwroot
+    /// </summary>
+    [HttpGet]
+    public void DownloadSetImages()
     {
-        foreach (Card card in allCards)
+        List<Set> allCards = _dbContext.Sets.ToList();
+        Thread worker = new(() => SaveImages(allCards.Select(x => x.SetImg)));
+        worker.Start();
+    }
+    
+
+    private async void SaveImages(IEnumerable<string> allImgs)
+    {
+        foreach (string img in allImgs)
         {
             try
             {
-                string? newFileName = await DownloadImageAsync(card.Img);
+                string? newFileName = await DownloadImageAsync(img);
                 if (!string.IsNullOrEmpty(newFileName))
                 {
-                    _logger.LogInformation("downloaded image {Img} to {path}", card.Img, newFileName);
+                    _logger.LogInformation("downloaded image {Img} to {path}", img, newFileName);
                 }
                 else
                 {
-                    _logger.LogInformation("image {Img} already exists", card.Img);
+                    _logger.LogInformation("image {Img} already exists", img);
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError( "SaveCardImages fail on card {Id} Msg {Message} Stack {Stack}", card.Id, e.Message, e.StackTrace);
+                _logger.LogError( "SaveCardImages fail on img {Img} Msg {Message} Stack {Stack}", img, e.Message, e.StackTrace);
             }
         }
     }

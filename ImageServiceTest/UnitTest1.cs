@@ -33,6 +33,10 @@ public class Tests
         _dbContext.Cards.Add(new Card(){Img = "http://www.mtg.ru/pictures/M20_RUS/FloodofTears2.jpg", IsRus = false, Id = 2});
         _dbContext.Cards.Add(new Card(){Img = "http://www.mtg.ru/pictures/M20/FloodofTears3.jpg", IsRus = true, Id = 3});
         _dbContext.Cards.Add(new Card(){Img = "http://www.mtg.ru/pictures/M20_RUS/FloodofTears4.jpg", IsRus = true, Id = 4});
+
+        _dbContext.Sets.Add(new Set() { SetImg = "http://www.mtg.ru/images2/sets/THB-U.gif" });
+        _dbContext.Sets.Add(new Set() { SetImg = "http://www.mtg.ru/images2/sets/STA-U.gif" });
+        
         _dbContext.SaveChanges();
         
         Mock<ILogger<ImagesController>> logger = new();
@@ -44,12 +48,18 @@ public class Tests
     [Test]
     public void ImagesController()
     {
-        _imagesController.SetCardImagePaths("127.0.0.1:22").Wait();
-        Card card = _dbContext.Cards.First(x => x.Id == 1);
+        _imagesController.SetImagesPaths("127.0.0.1:22/images").Wait();
         Assert.Multiple(() =>
         {
-            Assert.That(card.Img, Is.EqualTo("127.0.0.1:22/M20/FloodofTears1.jpg"));
-            Assert.That(card.IsRus, Is.EqualTo(false));
+            Assert.That(_dbContext.Cards.First(x => x.Id == 1).Img, Is.EqualTo("127.0.0.1:22/images/M20/FloodofTears1.jpg"));
+            Assert.That(_dbContext.Cards.First(x => x.Id == 1).IsRus, Is.EqualTo(false));
+            Assert.That(_dbContext.Cards.First(x => x.Id == 2).Img, Is.EqualTo("127.0.0.1:22/images/M20_RUS/FloodofTears2.jpg"));
+            Assert.That(_dbContext.Cards.First(x => x.Id == 3).Img, Is.EqualTo("127.0.0.1:22/images/M20/FloodofTears3.jpg"));
+            Assert.That(_dbContext.Cards.First(x => x.Id == 3).IsRus, Is.EqualTo(true));
+            Assert.That(_dbContext.Cards.First(x => x.Id == 4).Img, Is.EqualTo("127.0.0.1:22/images/M20_RUS/FloodofTears4.jpg"));
+            
+            Assert.That(_dbContext.Sets.First(x => x.Id == 1).SetImg, Is.EqualTo("127.0.0.1:22/images/sets/THB-U.gif"));
+            Assert.That(_dbContext.Sets.First(x => x.Id == 2).SetImg, Is.EqualTo("127.0.0.1:22/images/sets/STA-U.gif"));
         });
     }
     
