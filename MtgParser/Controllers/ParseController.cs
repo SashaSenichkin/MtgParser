@@ -25,7 +25,7 @@ public class ParseController : ControllerBase
     /// </summary>
     /// <param name="cardName">название карты</param>
     /// <returns>вся информация, которую мы смогли получить</returns>
-    [HttpGet(Name = "GetCardInfo")]
+    [HttpGet]
     public async Task<Card> GetCardInfoAsync(string cardName)
     {
         CardSet cardSet = await _cardSetProvider.GetCardSetAsync(new CardName() { Name = cardName });
@@ -38,7 +38,7 @@ public class ParseController : ControllerBase
     /// <param name="cardName">имя карты</param>
     /// <param name="setShortName">аббревиатура сета. сет создастся в базе, если не найдётся в существующих</param>
     /// <returns>вся информация, которую мы смогли получить</returns>
-    [HttpGet(Name = "GetCardSetInfo")]
+    [HttpGet]
     public async Task<CardSet> GetCardSetInfoAsync(string cardName, string setShortName)
     {
         return await _cardSetProvider.GetCardSetAsync(new CardName() { Name = cardName, SetShort = setShortName} );
@@ -49,7 +49,7 @@ public class ParseController : ControllerBase
     /// </summary>
     /// <param name="cardName">имя карты</param>
     /// <returns>успешность операции</returns>
-    [HttpPost(Name = "PostToDb")]
+    [HttpPost]
     public async Task<bool> PostToDbAsync(string cardName)
     {
         try

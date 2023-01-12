@@ -26,7 +26,7 @@ public class ParseManyController : ControllerBase
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
-    [HttpPost(Name = "PostCardNamesInfo")]
+    [HttpPost]
     public bool PostCardNamesInfo(IEnumerable<CardName> data)
     {
         try
@@ -50,7 +50,7 @@ public class ParseManyController : ControllerBase
     /// </summary>
     /// <param name="dataRaw"></param>
     /// <returns></returns>
-    [HttpGet(Name = "GetCardNamesInfo")]
+    [HttpGet]
     public async Task<IEnumerable<CardSet>> GetCardNamesInfoAsync(string dataRaw)
     {
         try
@@ -75,7 +75,7 @@ public class ParseManyController : ControllerBase
     /// удалить все данные, кроме справочников Rarity, Keywords и вручную заполняемой таблицы CardNames
     /// </summary>
     /// <returns></returns>
-    [HttpDelete(Name = "ClearParsedData")]
+    [HttpDelete]
     public bool ClearParsedData()
     {
         try
@@ -99,7 +99,7 @@ public class ParseManyController : ControllerBase
     /// проходится по всем записям в таблице CardNames, пытается получить информацию с сайтов и сохранить в нашем виде
     /// </summary>
     /// <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
-    [HttpPost(Name = "ParceAllCardNamesToDb")]
+    [HttpPost]
     public async Task<bool> ParceAllCardNamesToDbAsync()
     {
         try
