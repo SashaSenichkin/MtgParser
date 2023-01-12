@@ -1,4 +1,3 @@
-using System.Reflection;
 using ImageService.Context;
 using Microsoft.AspNetCore.Mvc;
 using static System.IO.File;
@@ -53,7 +52,7 @@ public class ImagesController : ControllerBase
     /// takes all pictures from Cards.img and save new to wwwroot
     /// </summary>
     [HttpGet]
-    public void SetCardImages()
+    public void DownloadCardImages()
     {
         List<Card> allCards = _dbContext.Cards.ToList();
         Thread worker = new(() => SaveCardImages(allCards));
@@ -66,7 +65,15 @@ public class ImagesController : ControllerBase
         {
             try
             {
-                await DownloadImageAsync(card.Img);
+                string? newFileName = await DownloadImageAsync(card.Img);
+                if (!string.IsNullOrEmpty(newFileName))
+                {
+                    _logger.LogInformation("downloaded image {Img} to {path}", card.Img, newFileName);
+                }
+                else
+                {
+                    _logger.LogInformation("image {Img} already exists", card.Img);
+                }
             }
             catch (Exception e)
             {
@@ -75,12 +82,22 @@ public class ImagesController : ControllerBase
         }
     }
 
-    private static async Task DownloadImageAsync(string url)
+    private static async Task<string?> DownloadImageAsync(string url)
     {
-        string fileName = GetNewFilePath(url, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\", "wwwroot", "images"));
+        string machineRoot;
+        if ( Environment.OSVersion.Platform == PlatformID.Unix)
+        {
+            machineRoot = "/app/wwwroot/images";
+        }
+        else
+        {
+            machineRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\", "wwwroot", "images");
+        }
+        
+        string fileName = GetNewFilePath(url, machineRoot);
         if (Exists(fileName))
         {
-            return;  
+            return null;  
         }
 
         Directory.CreateDirectory(Path.GetDirectoryName(fileName) ?? string.Empty);
@@ -88,6 +105,7 @@ public class ImagesController : ControllerBase
         using HttpResponseMessage response = await client.GetAsync(url);
         await using FileStream imageFile = new(fileName, FileMode.Create);
         await response.Content.CopyToAsync(imageFile);
+        return fileName;
     }
 
     private static string GetNewFilePath(string oldPath, string newPart)
