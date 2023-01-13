@@ -35,6 +35,20 @@ public class SelfCheckController : ControllerBase
     }
     
     /// <summary>
+    /// получить спискок карт, которые почему-то попали в базу более одного раза..
+    /// </summary>
+    /// <returns>cardName, которые надо поправить или перепарсить</returns>
+    [HttpGet]
+    public List<Card> GetDuplicateCards()
+    {
+        DbSet<Card> cards = _dbContext.Cards;
+
+        return cards.Where(x => cards.Any(y => (x.IsRus == y.IsRus && x.Id != y.Id) &&
+                                                        ((x.IsRus && x.NameRus == y.NameRus) 
+                                                        || (!x.IsRus && x.Name == y.Name)))).ToList();
+    }
+    
+    /// <summary>
     /// отладочное апи. получает текущую версию приложения
     /// </summary>
     /// <returns> major.minor.build.revision</returns>
