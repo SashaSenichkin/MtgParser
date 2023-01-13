@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MtgParser.Context;
 using MtgParser.Model;
 using MtgParser.Provider;
@@ -65,6 +66,66 @@ public class ParseController : ControllerBase
         catch (Exception e)
         {
             _logger.LogError(e, "PostToDb fails");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// принудительное обновление информации по конкректным картам. поиск пойдёт по NameRus, если карта русская и по Name, если английская. 
+    /// </summary>
+    /// <param name="cardIds">оставить пустым для принудительного обновления ВСЕХ КАРТ</param>
+    /// <returns>успешность операции</returns>
+    [HttpPut]
+    public async Task<bool> ReparseCards(int[] cardIds)
+    {
+        try
+        {
+            List<Card> cardsToReparse;
+            if (cardIds.Any())
+            {
+                cardsToReparse = await _dbContext.Cards.Where(x => cardIds.Contains(x.Id)).ToListAsync();
+            }
+            else
+            {
+                cardsToReparse = await _dbContext.Cards.ToListAsync();
+            }
+            
+            foreach (Card card in cardsToReparse)
+            {
+                CardName cardName = new();
+                if (card.IsRus)
+                {
+                    cardName.NameRus = card.NameRus;
+                }
+                else
+                {
+                    cardName.Name = card.Name;
+                }
+
+                CardSet cardSet = await _cardSetProvider.GetDataFromWebAsync(cardName, null, null);
+                card.Color = cardSet.Card.Color;
+                card.Cmc = cardSet.Card.Cmc;
+                card.Text = cardSet.Card.Text;
+                card.Img = cardSet.Card.Img;
+                card.IsRus = cardSet.Card.IsRus;
+                card.Keywords = cardSet.Card.Keywords;
+                card.Name = cardSet.Card.Name;
+                card.NameRus = cardSet.Card.NameRus;
+                card.Power = cardSet.Card.Power;
+                card.Toughness = cardSet.Card.Toughness;
+                card.Type = cardSet.Card.Type;
+                card.TypeRus = cardSet.Card.TypeRus;
+
+                _logger.LogInformation("PostToDb found cardSet {cardId} {cardName}", cardSet.Id, cardSet.Card.Name);
+
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "ReParseCards fails");
             return false;
         }
     }

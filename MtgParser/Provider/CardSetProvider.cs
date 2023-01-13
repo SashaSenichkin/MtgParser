@@ -27,6 +27,11 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
         _context = context;
     }
     
+    /// <summary>
+    /// checks Set from DB, then gets html and pass it to CardSetParser
+    /// </summary>
+    /// <param name="cardName">request object</param>
+    /// <returns>Set in db already, but card and cardSet are your to proceed</returns>
     public async Task<CardSet> GetCardSetAsync(CardName cardName)
     {
         try
@@ -43,32 +48,46 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
                 }
             }
 
-            IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + cardName.SeekName + $"&Grp={cardName.SetShort}");
-            Card? card = storedCard ?? _parser.GetCard(doc, string.IsNullOrEmpty(cardName.Name));
-            if (card == null)
-            {
-                throw new Exception($"can't find card {cardName.SeekName} in set {cardName.SetShort} check address {doc.BaseUri}");
-            }
-
-            if (string.IsNullOrEmpty(cardName.SetShort))
-            {
-                return new CardSet() { Card = card };
-            }
-            
-            Set? set = storedSet ?? await GetSetFromWebAsync(cardName.SetShort, doc);
-            if (set == null || set.ShortName != cardName.SetShort)
-            {
-                throw new Exception($"Проверьте название сета предполагаемый вариант {set.ShortName}({set.FullName}) предложенный {cardName.SetShort}");
-            }
-
-            CardSet result = GetCardSetFromWeb(set, card, cardName, doc);
-            return result;
+            return await GetDataFromWebAsync(cardName, storedCard, storedSet);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             throw;
         }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="cardName"></param>
+    /// <param name="storedCard"></param>
+    /// <param name="storedSet"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<CardSet> GetDataFromWebAsync(CardName cardName, Card? storedCard = null, Set? storedSet = null)
+    {
+        IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + cardName.SeekName + $"&Grp={cardName.SetShort}");
+        Card? card = storedCard ?? _parser.GetCard(doc, string.IsNullOrEmpty(cardName.Name));
+        if (card == null)
+        {
+            throw new Exception(
+                $"can't find card {cardName.SeekName} in set {cardName.SetShort} check address {doc.BaseUri}");
+        }
+
+        if (string.IsNullOrEmpty(cardName.SetShort))
+        {
+            return new CardSet() { Card = card };
+        }
+
+        Set? set = storedSet ?? await GetSetFromWebAsync(cardName.SetShort, doc);
+        if (set == null || set.ShortName != cardName.SetShort)
+        {
+            throw new Exception(
+                $"Проверьте название сета найденный вариант {set.ShortName}({set.FullName}) запрошенный {cardName.SetShort}");
+        }
+
+        return GetCardSetFromWeb(set, card, cardName, doc);
     }
 
     private async Task<Set?> GetSetFromWebAsync(string setShortName, IDocument doc)
