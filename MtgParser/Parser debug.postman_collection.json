@@ -1,117 +1,12 @@
 {
 	"info": {
 		"_postman_id": "45127125-331c-46cc-9091-ad0e46fa1277",
-		"name": "MTG",
+		"name": "Parser debug",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "GetCardInfo",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"pm.test(\"Check parse on power field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.power).to.eql(\"5\");\r",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/Parse/GetCardInfo?cardName=Hazoret",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"Parse",
-						"GetCardInfo"
-					],
-					"query": [
-						{
-							"key": "cardName",
-							"value": "Hazoret"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "SelfCheck GetUnparsedCards",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/SelfCheck/GetUnparsedCards",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"SelfCheck",
-						"GetUnparsedCards"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "SelfCheck GetVersion",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/SelfCheck/GetVersion",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"SelfCheck",
-						"GetVersion"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetCardNamesInfo Debug",
+			"name": "GetCardNamesInfo",
 			"event": [
 				{
 					"listen": "test",
@@ -149,51 +44,6 @@
 		},
 		{
 			"name": "GetCardSetInfo",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"pm.test(\"Check parse on power field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.card.power).to.eql(\"5\");\r",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/Parse/GetCardSetInfo?cardName=Hazoret&setShortName=MPS_AKH",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"Parse",
-						"GetCardSetInfo"
-					],
-					"query": [
-						{
-							"key": "cardName",
-							"value": "Hazoret"
-						},
-						{
-							"key": "setShortName",
-							"value": "MPS_AKH"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetCardSetInfo Debug",
 			"event": [
 				{
 					"listen": "test",
@@ -302,6 +152,68 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "DebugPClearParsedData",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Check parse on power field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.card.power).to.eql(\"5\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/ParseMany/ClearParsedData",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ParseMany",
+						"ClearParsedData"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5083",
+			"type": "default"
 		}
 	]
 }
