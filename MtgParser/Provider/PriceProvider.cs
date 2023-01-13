@@ -30,7 +30,8 @@ public class PriceProvider : BaseProvider, IPriceProvider
         try
         {
             string searchCardName = cardSet.Card.Name.Replace(' ', '+');
-            IDocument doc = await GetHtmlAsync($"{_urlsConfig["PriceApi"] + cardSet.Set.SearchText}/{searchCardName}" );
+            string foilPart = cardSet.IsFoil == 1 ? ":Foil" : string.Empty;
+            IDocument doc = await GetHtmlAsync($"{_urlsConfig["PriceApi"] + cardSet.Set.SearchText + foilPart}/{searchCardName}" );
             Price result = PriceParser.GetPrice(cardSet, doc);
             return result;
         }
