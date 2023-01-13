@@ -6,6 +6,9 @@ using Newtonsoft.Json;
 
 namespace MtgParser.Controllers;
 
+/// <summary>
+/// Api methods for automation mass parse, save to db and clear all.
+/// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
 public class ParseManyController : ControllerBase
@@ -13,7 +16,8 @@ public class ParseManyController : ControllerBase
     private readonly ICardSetProvider _cardSetProvider;
     private readonly ILogger<ParseManyController> _logger;
     private readonly MtgContext _dbContext;
-    
+
+    /// <inheritdoc />
     public ParseManyController(MtgContext dbContext, ICardSetProvider cardSetProvider, ILogger<ParseManyController> logger)
     {
         _cardSetProvider = cardSetProvider;

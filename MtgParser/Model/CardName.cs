@@ -1,3 +1,4 @@
+#pragma warning disable CS8618
 namespace MtgParser.Model;
 
 /// <summary>
@@ -33,10 +34,22 @@ public class CardName : BaseModel
     /// <summary>
     /// use it to get word to seek in search engine
     /// </summary>
-    public string SeekName => String.IsNullOrEmpty(Name)?NameRus:Name;
+    public string? SeekName => string.IsNullOrEmpty(Name) ? NameRus : Name;
 
+    /// <summary>
+    /// Проверка совпадений сущности и карты..
+    /// </summary>
+    /// <param name="candidate">карта для проверки соответствия текущему CardName</param>
+    /// <returns>совпадение или нет</returns>
     public bool IsCardEqual(Card candidate)
     {
+        switch (candidate.IsRus)
+        {
+            case true when string.IsNullOrEmpty(candidate.NameRus):
+            case false when string.IsNullOrEmpty(candidate.Name):
+                return false;
+        }
+
         if (!string.IsNullOrEmpty(candidate.Name) && !string.IsNullOrEmpty(Name) )
         {
             return candidate.Name.Contains(Name);

@@ -3,23 +3,73 @@ using MtgParser.Model;
 
 namespace MtgParser.Context;
 
+/// <summary>
+/// Full Db context for migrations.. have to be moved to separate project
+/// </summary>
 public class MtgContext : DbContext
 {
+    /// <summary>
+    /// context ctor for test and migrations auto-apply
+    /// </summary>
+    /// <param name="options"></param>
     public MtgContext(DbContextOptions options):base(options)
     {}
     
+    /// <summary>
+    /// basic mtg Keywors
+    /// </summary>
     public DbSet<Keyword> Keywords { get; set; }
+    
+    /// <summary>
+    /// auto parsed prices. have to move all here soon
+    /// </summary>
     public DbSet<Price> Prices { get; set; }
+    
+    /// <summary>
+    /// enumeration for 5 rarity values
+    /// </summary>
     public DbSet<Rarity> Rarities { get; set; }
+    
+    /// <summary>
+    /// all sets, that figure in our Cards
+    /// </summary>
     public DbSet<Set> Sets { get; set; }
+    
+    /// <summary>
+    /// Card essence) can be in many sets, various rarities, etc
+    /// </summary>
     public DbSet<Card> Cards { get; set; }
+    
+    /// <summary>
+    /// physical embodiment of card 
+    /// </summary>
     public DbSet<CardSet> CardsSets { get; set; }
+    
+    /// <summary>
+    /// list of cards for mass parsing
+    /// </summary>
     public DbSet<CardName> CardsNames { get; set; }
+    
+    /// <summary>
+    /// list of our users
+    /// </summary>
     public DbSet<User> Users { get; set; }
+    
+    /// <summary>
+    /// role-model part
+    /// </summary>
     public DbSet<Permission> Permissions { get; set; }
+    
+    /// <summary>
+    /// card orders
+    /// </summary>
     public DbSet<Order> Orders { get; set; }
 
 
+    /// <summary>
+    /// enumerations auto fill 
+    /// </summary>
+    /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

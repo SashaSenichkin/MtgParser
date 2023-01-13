@@ -6,21 +6,25 @@ using MtgParser.Model;
 
 namespace MtgParser.Controllers;
 
+/// <summary>
+/// check db for parse errors and other issues.
+/// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
 public class SelfCheckController : ControllerBase
 {
     private readonly MtgContext _dbContext;
-    
+
+    /// <inheritdoc />
     public SelfCheckController(MtgContext dbContext)
     {
         _dbContext = dbContext;
     }
     
     /// <summary>
-    /// 
+    /// получить спискок карт, которые не получилось распарсить
     /// </summary>
-    /// <returns></returns>
+    /// <returns>cardName, которые надо поправить или перепарсить</returns>
     [HttpGet]
     public async Task<List<CardName>> GetUnparsedCardsAsync()
     {
@@ -31,9 +35,9 @@ public class SelfCheckController : ControllerBase
     }
     
     /// <summary>
-    /// 
+    /// отладочное апи. получает текущую версию приложения
     /// </summary>
-    /// <returns></returns>
+    /// <returns> major.minor.build.revision</returns>
     [HttpGet]
     public string GetVersion()
     {

@@ -6,6 +6,9 @@ using MtgParser.Provider;
 
 namespace MtgParser.Controllers;
 
+/// <summary>
+/// auto price getter
+/// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
 public class PriceController : ControllerBase
@@ -13,7 +16,8 @@ public class PriceController : ControllerBase
     private readonly IPriceProvider _priceProvider;
     private readonly ILogger<PriceController> _logger;
     private readonly MtgContext _dbContext;
-    
+
+    /// <inheritdoc />
     public PriceController(MtgContext dbContext, IPriceProvider priceProvider,  ILogger<PriceController> logger)
     {
         _priceProvider = priceProvider;
@@ -53,7 +57,10 @@ public class PriceController : ControllerBase
         }
     }
 
-
+    /// <summary>
+    /// заберёт всю информацию из базы, постарается найти цены на все CardSet
+    /// </summary>
+    /// <returns>успех-провал</returns>
     [HttpPost]
     public async Task<ActionResult> FillPricesAsync()
     {
@@ -76,7 +83,7 @@ public class PriceController : ControllerBase
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("can't find price for card {Card} set {Set} ", 
+                    _logger.LogError(e, "can't find price for card {Card} set {Set} ", 
                                     cardRequest.Card.Name, 
                                     cardRequest.Set.ShortName);
                 }

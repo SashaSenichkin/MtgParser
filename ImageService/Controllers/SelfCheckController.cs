@@ -5,6 +5,9 @@ using static System.IO.File;
 
 namespace ImageService.Controllers;
 
+/// <summary>
+/// check db for parse errors and other issues.
+/// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
 public class SelfCheckController : ControllerBase
@@ -12,6 +15,8 @@ public class SelfCheckController : ControllerBase
     private readonly MtgContext _dbContext;
     private readonly ILogger<ImagesController> _logger;
 
+
+    /// <inheritdoc />
     public SelfCheckController(ILogger<ImagesController> logger, MtgContext dbContext)
     {
          _dbContext = dbContext;

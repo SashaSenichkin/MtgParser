@@ -5,6 +5,9 @@ using MtgParser.Model;
 
 namespace MtgParser.Controllers;
 
+/// <summary>
+/// fix simple staff.. dont add here methods, if you not sure that it will not broke something in future.. better save one-time sql
+/// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
 public class SelfFixController : ControllerBase
@@ -12,6 +15,7 @@ public class SelfFixController : ControllerBase
     private readonly MtgContext _dbContext;
     private readonly ILogger<ParseManyController> _logger;
 
+    /// <inheritdoc />
     public SelfFixController(MtgContext dbContext, ILogger<ParseManyController> logger)
     {
         _dbContext = dbContext;
@@ -19,7 +23,7 @@ public class SelfFixController : ControllerBase
     }
     
     /// <summary>
-    /// 
+    /// обрезает лишнее от внесённых вручную карт
     /// </summary>
     /// <returns></returns>
     [HttpPost]

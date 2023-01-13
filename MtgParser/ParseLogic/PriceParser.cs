@@ -9,18 +9,22 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace MtgParser.ParseLogic;
 
+/// <summary>
+/// main prise parser logic.. html in, staff out
+/// </summary>
 public class PriceParser : BaseParser
 {
     private const string PriceSelector = ".price-box-price";
-    
+
 
     /// <summary>
     /// Получение цены для физической карты
     /// </summary>
     /// <param name="cardSet">ссылка на физическую карту. фактически, достаточно названия и аббревиатуры сета</param>
+    /// <param name="doc">html для разбора</param>
     /// <returns>цена карты</returns>
     /// <exception cref="Exception">полученные исключение просто перебрасываются выше, с выводом в консоль</exception>
-    public Price GetPrice(CardSet cardSet, IDocument doc)
+    public static Price GetPrice(CardSet cardSet, IDocument doc)
     {
         try
         {

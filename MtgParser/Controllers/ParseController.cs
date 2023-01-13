@@ -6,6 +6,9 @@ using MtgParser.Provider;
 
 namespace MtgParser.Controllers;
 
+/// <summary>
+/// Parse single cardsSets and safe to DB
+/// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
 public class ParseController : ControllerBase
@@ -13,7 +16,8 @@ public class ParseController : ControllerBase
     private readonly ICardSetProvider _cardSetProvider;
     private readonly MtgContext _dbContext;
     private readonly ILogger<ParseController> _logger;
-    
+
+    /// <inheritdoc />
     public ParseController(MtgContext dbContext, ILogger<ParseController> logger, ICardSetProvider cardSetProvider)
     {
         _cardSetProvider = cardSetProvider;

@@ -10,25 +10,28 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace MtgParser.Provider;
 
+/// <inheritdoc cref="MtgParser.Provider.IPriceProvider" />
 public class PriceProvider : BaseProvider, IPriceProvider
 {
     private readonly PriceParser _parser;
     private readonly IConfigurationSection _urlsConfig;
 
+    /// <inheritdoc />
     public PriceProvider(PriceParser parser, IConfiguration fullConfig)
     {
         _urlsConfig = fullConfig.GetSection("ExternalUrls");
         _parser = parser;
 
     }
-    
+
+    /// <inheritdoc />
     public async Task<Price> GetPriceAsync(CardSet cardSet)
     {
         try
         {
             string searchCardName = cardSet.Card.Name.Replace(' ', '+');
             IDocument doc = await GetHtmlAsync($"{_urlsConfig["PriceApi"] + cardSet.Set.SearchText}/{searchCardName}" );
-            Price result = _parser.GetPrice(cardSet, doc);
+            Price result = PriceParser.GetPrice(cardSet, doc);
             return result;
         }
         catch (Exception e)
@@ -37,5 +40,4 @@ public class PriceProvider : BaseProvider, IPriceProvider
             throw;
         }
     }
-
 }

@@ -11,6 +11,7 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace MtgParser.Provider;
 
+/// <inheritdoc cref="MtgParser.Provider.ICardSetProvider" />
 public class CardSetProvider : BaseProvider, ICardSetProvider
 {
     private readonly MtgContext _context;
@@ -20,18 +21,16 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
     private const string MtgRuInConfig = "BaseMtgRu";
     private const string MtgRuInfoTableConfig = "MtgRuInfoTable";
 
+    /// <inheritdoc />
     public CardSetProvider(MtgContext context, CardSetParser parser, IConfiguration fullConfig)
     {
         _urlsConfig = fullConfig.GetSection("ExternalUrls");
         _parser = parser;
         _context = context;
     }
-    
-    /// <summary>
-    /// checks Set from DB, then gets html and pass it to CardSetParser
-    /// </summary>
-    /// <param name="cardName">request object</param>
-    /// <returns>Set in db already, but card and cardSet are your to proceed</returns>
+
+
+    /// <inheritdoc />
     public async Task<CardSet> GetCardSetAsync(CardName cardName)
     {
         try
@@ -57,14 +56,7 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="cardName"></param>
-    /// <param name="storedCard"></param>
-    /// <param name="storedSet"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
+    /// <inheritdoc />
     public async Task<CardSet> GetDataFromWebAsync(CardName cardName, Card? storedCard = null, Set? storedSet = null)
     {
         IDocument doc = await GetHtmlAsync(_urlsConfig[MtgRuInConfig] + cardName.SeekName + $"&Grp={cardName.SetShort}");
@@ -77,7 +69,7 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
 
         if (string.IsNullOrEmpty(cardName.SetShort))
         {
-            return new CardSet() { Card = card };
+            return new CardSet { Card = card };
         }
 
         Set? set = storedSet ?? await GetSetFromWebAsync(cardName.SetShort, doc);
@@ -118,8 +110,13 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
         return result;
     }
     
-    private async Task<Card?> GetCardFromDbAsync(string cardName)
+    private async Task<Card?> GetCardFromDbAsync(string? cardName)
     {
+        if (string.IsNullOrEmpty(cardName))
+        {
+            return null;
+        }
+        
         Card? card = await _context.Cards.FirstOrDefaultAsync(x => 
             !string.IsNullOrEmpty(x.Name) && !x.IsRus && x.Name.Contains(cardName)
             || !string.IsNullOrEmpty(x.NameRus) && x.IsRus && x.NameRus.Contains(cardName));
