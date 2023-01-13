@@ -1,1 +1,1 @@
-az acr build -t imageservice:v4 -r mtgregistry .
+az acr build -t imageservice:v9 -r mtgregistry .

@@ -21,7 +21,7 @@ public class SelfCheckController : ControllerBase
     /// 
     /// </summary>
     /// <returns></returns>
-    [HttpGet(Name = "GetUnparsedCards")]
+    [HttpGet]
     public async Task<List<CardName>> GetUnparsedCardsAsync()
     {
         List<CardName> source = await _dbContext.CardsNames.ToListAsync();
@@ -34,7 +34,7 @@ public class SelfCheckController : ControllerBase
     /// 
     /// </summary>
     /// <returns></returns>
-    [HttpGet(Name = "GetVersion")]
+    [HttpGet]
     public string GetVersion()
     {
         return Assembly.GetExecutingAssembly().GetName().Version.ToString();

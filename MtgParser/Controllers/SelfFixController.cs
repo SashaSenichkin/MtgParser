@@ -22,7 +22,7 @@ public class SelfFixController : ControllerBase
     /// 
     /// </summary>
     /// <returns></returns>
-    [HttpPost(Name = "TrimCardNames")]
+    [HttpPost]
     public async Task<bool> TrimCardNamesAsync()
     {
         try

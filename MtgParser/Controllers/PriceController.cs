@@ -26,7 +26,7 @@ public class PriceController : ControllerBase
     /// </summary>
     /// <param name="cardSetId">выбрать id из базы</param>
     /// <returns>цена данной карты</returns>
-    [HttpGet(Name = "GetPrice")]
+    [HttpGet]
     public async Task<ActionResult> GetPrice(int cardSetId)
     {
         try
@@ -54,7 +54,7 @@ public class PriceController : ControllerBase
     }
 
 
-    [HttpPost(Name = "FillPrices")]
+    [HttpPost]
     public async Task<ActionResult> FillPricesAsync()
     {
         try

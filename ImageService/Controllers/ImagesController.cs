@@ -23,12 +23,12 @@ public class ImagesController : ControllerBase
     }
     
     /// <summary>
-    /// Replace All db.Cards
+    /// Replace All db.Cards and db.Sets
     /// </summary>
     /// <param name="newRoot"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<bool> SetCardImagePaths(string newRoot)
+    public async Task<bool> SetImagesPaths(string newRoot)
     {
         try
         {
@@ -36,6 +36,12 @@ public class ImagesController : ControllerBase
             foreach (Card card in allCards)
             {
                 card.Img = GetNewFilePath(card.Img, newRoot);
+            }
+            
+            List<Set> allSets = _dbContext.Sets.ToList();
+            foreach (Set set in allSets)
+            {
+                set.SetImg = GetNewFilePath(set.SetImg, newRoot);
             }
 
             await _dbContext.SaveChangesAsync();
@@ -47,7 +53,7 @@ public class ImagesController : ControllerBase
             return false;
         }
     }
-
+    
     /// <summary>
     /// takes all pictures from Cards.img and save new to wwwroot
     /// </summary>
@@ -55,31 +61,77 @@ public class ImagesController : ControllerBase
     public void DownloadCardImages()
     {
         List<Card> allCards = _dbContext.Cards.ToList();
-        Thread worker = new(() => SaveCardImages(allCards));
+        Thread worker = new(() => SaveImages(allCards.Select(x => x.Img)));
+        worker.Start();
+    }
+    
+    /// <summary>
+    /// takes all pictures from Cards.img and save new to wwwroot
+    /// </summary>
+    [HttpGet]
+    public void DownloadSetImages()
+    {
+        List<Set> allCards = _dbContext.Sets.ToList();
+        Thread worker = new(() => SaveImages(allCards.Select(x => x.SetImg)));
+        worker.Start();
+    }
+    
+    /// <summary>
+    /// use, if all db urls are correct, but you lost imgages
+    /// </summary>
+    /// <param name="url">image source root</param>
+    [HttpGet]
+    public void DownloadAllImagesFromSite(string url)
+    {
+        List<Card> allCards = _dbContext.Cards.ToList();
+        List<Set> allSets = _dbContext.Sets.ToList();
+        Thread worker = new(() =>
+        {
+            SaveImages(allCards.Select(x => GetNewFilePath(x.Img, url)));
+            SaveImages(allSets.Select(x => GetNewFilePath(x.SetImg, url)));
+        });
         worker.Start();
     }
 
-    private async void SaveCardImages(List<Card> allCards)
+    private async void SaveImages(IEnumerable<string> allImgs)
     {
-        foreach (Card card in allCards)
+        foreach (string img in allImgs)
         {
             try
             {
-                await DownloadImageAsync(card.Img);
+                string? newFileName = await DownloadImageAsync(img);
+                if (!string.IsNullOrEmpty(newFileName))
+                {
+                    _logger.LogInformation("downloaded image {Img} to {path}", img, newFileName);
+                }
+                else
+                {
+                    _logger.LogInformation("image {Img} already exists", img);
+                }
             }
             catch (Exception e)
             {
-                _logger.LogError( "SaveCardImages fail on card {Id} Msg {Message} Stack {Stack}", card.Id, e.Message, e.StackTrace);
+                _logger.LogError( "SaveCardImages fail on img {Img} Msg {Message} Stack {Stack}", img, e.Message, e.StackTrace);
             }
         }
     }
 
-    private static async Task DownloadImageAsync(string url)
+    private static async Task<string?> DownloadImageAsync(string url)
     {
-        string fileName = GetNewFilePath(url, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\", "wwwroot", "images"));
+        string machineRoot;
+        if ( Environment.OSVersion.Platform == PlatformID.Unix)
+        {
+            machineRoot = "/app/wwwroot/images";
+        }
+        else
+        {
+            machineRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\", "wwwroot", "images");
+        }
+        
+        string fileName = GetNewFilePath(url, machineRoot);
         if (Exists(fileName))
         {
-            return;  
+            return null;  
         }
 
         Directory.CreateDirectory(Path.GetDirectoryName(fileName) ?? string.Empty);
@@ -87,6 +139,7 @@ public class ImagesController : ControllerBase
         using HttpResponseMessage response = await client.GetAsync(url);
         await using FileStream imageFile = new(fileName, FileMode.Create);
         await response.Content.CopyToAsync(imageFile);
+        return fileName;
     }
 
     private static string GetNewFilePath(string oldPath, string newPart)
