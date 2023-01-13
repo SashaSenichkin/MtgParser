@@ -1,16 +1,24 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using MtgParser.Context;
 using MtgParser.ParseLogic;
 using MtgParser.Provider;
 using Serilog;
-
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+       options.SwaggerDoc("v1", new OpenApiInfo
+       {
+              Version = "v1",
+              Title = "MtgParser API"
+       });
+       options.IncludeXmlComments(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "MtgParser.xml"));
+});
         
 builder.Host.UseSerilog((context, services, configuration) => configuration
        .ReadFrom.Configuration(context.Configuration)

@@ -1,5 +1,6 @@
 using Serilog;
 using ImageService.Context;
+using Microsoft.OpenApi.Models;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +9,15 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "ImageService API"
+    });
+    options.IncludeXmlComments(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "ImageService.xml"));
+});
 
 string? connectionString = builder.Configuration.GetConnectionString("MtgContext");
 builder.Services.AddSqlServer<MtgContext>(connectionString);
