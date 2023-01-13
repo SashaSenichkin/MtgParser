@@ -158,7 +158,7 @@
         <member name="M:MtgParser.Controllers.PriceController.#ctor(MtgParser.Context.MtgContext,MtgParser.Provider.IPriceProvider,Microsoft.Extensions.Logging.ILogger{MtgParser.Controllers.PriceController})">
             <inheritdoc />
         </member>
-        <member name="M:MtgParser.Controllers.PriceController.GetPrice(System.Int32)">
+        <member name="M:MtgParser.Controllers.PriceController.GetPriceAsync(System.Int32)">
             <summary>
             тестовое получение цены по физическому представлениею карты
             </summary>
@@ -185,7 +185,7 @@
             </summary>
             <returns>cardName, которые надо поправить или перепарсить</returns>
         </member>
-        <member name="M:MtgParser.Controllers.SelfCheckController.GetDuplicateCardsAsync">
+        <member name="M:MtgParser.Controllers.SelfCheckController.GetDuplicateCards">
             <summary>
             получить спискок карт, которые почему-то попали в базу более одного раза..
             </summary>
