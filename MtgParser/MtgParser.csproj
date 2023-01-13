@@ -7,6 +7,8 @@
         <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
         <AssemblyVersion>1.1.0.*</AssemblyVersion>
         <Deterministic>false</Deterministic>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DocumentationFile>$(SolutionDir)\Docs\MtgParser.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>

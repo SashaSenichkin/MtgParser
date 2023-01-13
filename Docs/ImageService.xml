@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ImageService</name>
+    </assembly>
+    <members>
+        <member name="T:ImageService.Context.BaseModel">
+            <summary>
+            общие для сущностей поля
+            </summary>
+        </member>
+        <member name="P:ImageService.Context.BaseModel.Id">
+            <summary>
+            ну.. id как будто везде нужен, так что я вынес в базовый класс
+            </summary>
+        </member>
+        <member name="T:ImageService.Context.Card">
+            <summary>
+            Абстрактное описание карты
+            </summary>
+        </member>
+        <member name="P:ImageService.Context.Card.Img">
+            <summary>
+            ссылка на картинку
+            </summary>
+        </member>
+        <member name="P:ImageService.Context.Card.IsRus">
+            <summary>
+            поле для фронта. у некоторых карт скрываем русское описание вообще. 
+            </summary>
+        </member>
+        <member name="T:ImageService.Context.MtgContext">
+            <summary>
+            images part of full db context 
+            </summary>
+        </member>
+        <member name="M:ImageService.Context.MtgContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions)">
+            <summary>
+            init db context, used in tests
+            </summary>
+            <param name="options"> </param>
+        </member>
+        <member name="P:ImageService.Context.MtgContext.Sets">
+            <summary>
+            all sets, that figure in our Cards
+            </summary>
+        </member>
+        <member name="P:ImageService.Context.MtgContext.Cards">
+            <summary>
+            Card essence) can be in many sets, various rarities, etc
+            </summary>
+        </member>
+        <member name="T:ImageService.Context.Set">
+            <summary>
+            Сеты для карт
+            </summary>
+        </member>
+        <member name="P:ImageService.Context.Set.SetImg">
+            <summary>
+            Картинка с пиктограммой сета
+            </summary>
+        </member>
+        <member name="T:ImageService.Controllers.ImagesController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:ImageService.Controllers.ImagesController.#ctor(Microsoft.Extensions.Logging.ILogger{ImageService.Controllers.ImagesController},ImageService.Context.MtgContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:ImageService.Controllers.ImagesController.SetImagesPaths(System.String)">
+            <summary>
+            Replace All db.Cards and db.Sets
+            </summary>
+            <param name="newRoot"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ImageService.Controllers.ImagesController.DownloadCardImages">
+            <summary>
+            takes all pictures from Cards.img and save new to wwwroot
+            </summary>
+        </member>
+        <member name="M:ImageService.Controllers.ImagesController.DownloadSetImages">
+            <summary>
+            takes all pictures from Cards.img and save new to wwwroot
+            </summary>
+        </member>
+        <member name="M:ImageService.Controllers.ImagesController.DownloadAllImagesFromSite(System.String)">
+            <summary>
+            use, if all db urls are correct, but you lost imgages
+            </summary>
+            <param name="url">image source root</param>
+        </member>
+        <member name="T:ImageService.Controllers.SelfCheckController">
+            <summary>
+            check db for parse errors and other issues.
+            </summary>
+        </member>
+        <member name="M:ImageService.Controllers.SelfCheckController.#ctor(Microsoft.Extensions.Logging.ILogger{ImageService.Controllers.ImagesController},ImageService.Context.MtgContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:ImageService.Controllers.SelfCheckController.CheckCardImages">
+            <summary>
+            Get all 
+            </summary>
+            <returns>card id and image path</returns>
+        </member>
+        <member name="M:ImageService.Controllers.SelfCheckController.CheckRusImages">
+            <summary>
+            some cards have russian img.. experimental feature.. have to check it
+            </summary>
+            <returns>list of rus cards with eng images, eng cards with rus images</returns>
+        </member>
+    </members>
+</doc>
