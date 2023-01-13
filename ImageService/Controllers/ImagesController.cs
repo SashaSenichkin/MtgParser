@@ -76,6 +76,22 @@ public class ImagesController : ControllerBase
         worker.Start();
     }
     
+    /// <summary>
+    /// use, if all db urls are correct, but you lost imgages
+    /// </summary>
+    /// <param name="url">image source root</param>
+    [HttpGet]
+    public void DownloadAllImagesFromSite(string url)
+    {
+        List<Card> allCards = _dbContext.Cards.ToList();
+        List<Set> allSets = _dbContext.Sets.ToList();
+        Thread worker = new(() =>
+        {
+            SaveImages(allCards.Select(x => GetNewFilePath(x.Img, url)));
+            SaveImages(allSets.Select(x => GetNewFilePath(x.SetImg, url)));
+        });
+        worker.Start();
+    }
 
     private async void SaveImages(IEnumerable<string> allImgs)
     {
