@@ -12,7 +12,6 @@ public class SelfFixController : ControllerBase
     private readonly MtgContext _dbContext;
     private readonly ILogger<ParseManyController> _logger;
 
-    
     public SelfFixController(MtgContext dbContext, ILogger<ParseManyController> logger)
     {
         _dbContext = dbContext;

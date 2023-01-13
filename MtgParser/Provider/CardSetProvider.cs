@@ -31,7 +31,6 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
     {
         try
         {
-            
             Card? storedCard = await GetCardFromDbAsync(cardName.SeekName);
             Set? storedSet = await GetSetFromDbAsync(cardName.SetShort);
             
@@ -48,7 +47,7 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
             Card? card = storedCard ?? _parser.GetCard(doc, string.IsNullOrEmpty(cardName.Name));
             if (card == null)
             {
-                throw new Exception($"can't find card {cardName.SeekName}");
+                throw new Exception($"can't find card {cardName.SeekName} in set {cardName.SetShort} check address {doc.BaseUri}");
             }
 
             if (string.IsNullOrEmpty(cardName.SetShort))
@@ -112,8 +111,7 @@ public class CardSetProvider : BaseProvider, ICardSetProvider
     {
         return await _context.Sets.FirstOrDefaultAsync(x => x.ShortName.Equals(setShortName));
     }
-    
-    
+
     private async Task<CardSet?> GetCardSetFromDbAsync(CardName cardName, Set set, Card card)
     {
         CardSet? storedSet = await _context.CardsSets

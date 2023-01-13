@@ -59,10 +59,10 @@ public class PriceController : ControllerBase
     {
         try
         {
-            List<CardSet> source = _dbContext.CardsSets.Include(x => x.Card)
-                                                       .Include(x => x.Set)
-                                                       .Include(x => x.Prices)
-                                                       .ToList();
+            List<CardSet> source = await _dbContext.CardsSets.Include(x => x.Card)
+                                                             .Include(x => x.Set)
+                                                             .Include(x => x.Prices)
+                                                             .ToListAsync();
 
             foreach (CardSet cardRequest in source)
             {
