@@ -144,7 +144,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:MtgParser.Controllers.ParseManyController.ParceAllCardNamesToDbAsync">
+        <member name="M:MtgParser.Controllers.ParseManyController.ParseAllCardNamesToDbAsync">
             <summary>
             проходится по всем записям в таблице CardNames, пытается получить информацию с сайтов и сохранить в нашем виде
             </summary>
@@ -182,6 +182,12 @@
         <member name="M:MtgParser.Controllers.SelfCheckController.GetUnparsedCardsAsync">
             <summary>
             получить спискок карт, которые не получилось распарсить
+            </summary>
+            <returns>cardName, которые надо поправить или перепарсить</returns>
+        </member>
+        <member name="M:MtgParser.Controllers.SelfCheckController.GetDuplicateCardsAsync">
+            <summary>
+            получить спискок карт, которые почему-то попали в базу более одного раза..
             </summary>
             <returns>cardName, которые надо поправить или перепарсить</returns>
         </member>

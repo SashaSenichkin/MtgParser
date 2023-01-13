@@ -28,8 +28,8 @@ public class SelfCheckController : ControllerBase
     [HttpGet]
     public async Task<List<CardName>> GetUnparsedCardsAsync()
     {
-        List<CardName> source = await _dbContext.CardsNames.ToListAsync();
-        List<Card> cards = await _dbContext.Cards.ToListAsync();
+        List<CardName> source = await _dbContext.CardsNames.AsNoTracking().ToListAsync();
+        List<Card> cards = await _dbContext.Cards.AsNoTracking().ToListAsync();
 
         return source.Where(x => cards.All(y => !x.IsCardEqual(y))).ToList();
     }
@@ -45,7 +45,7 @@ public class SelfCheckController : ControllerBase
 
         return cards.Where(x => cards.Any(y => (x.IsRus == y.IsRus && x.Id != y.Id) &&
                                                         ((x.IsRus && x.NameRus == y.NameRus) 
-                                                        || (!x.IsRus && x.Name == y.Name)))).ToList();
+                                                        || (!x.IsRus && x.Name == y.Name)))).AsNoTracking().ToList();
     }
     
     /// <summary>

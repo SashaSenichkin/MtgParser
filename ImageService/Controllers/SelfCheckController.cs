@@ -30,7 +30,7 @@ public class SelfCheckController : ControllerBase
     [HttpGet]
     public string[] CheckCardImages()
     {
-        List<Card> allCards = _dbContext.Cards.ToList();
+        List<Card> allCards = _dbContext.Cards.AsNoTracking().ToList();
         string[] result = allCards.Where(x => !Exists(x.Img)).Select(x => $"{x.Id} {x.Img}").ToArray();
         return result;
     }
@@ -42,7 +42,7 @@ public class SelfCheckController : ControllerBase
     [HttpGet]
     public async Task<string[]> CheckRusImages()
     {
-        List<Card> allCards = await _dbContext.Cards.ToListAsync();
+        List<Card> allCards = await _dbContext.Cards.AsNoTracking().ToListAsync();
         IEnumerable<string> result = allCards.Where(x => x.IsRus && !x.Img.Contains("_RUS/")).Select(x => x.Img)
                               .Union(allCards.Where(x => !x.IsRus && x.Img.Contains("_RUS/")).Select(x => x.Img));
         

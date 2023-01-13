@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MtgParser.Context;
 using MtgParser.Model;
 using MtgParser.Provider;
@@ -104,11 +105,11 @@ public class ParseManyController : ControllerBase
     /// </summary>
     /// <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
     [HttpPost]
-    public async Task<bool> ParceAllCardNamesToDbAsync()
+    public async Task<bool> ParseAllCardNamesToDbAsync()
     {
         try
         {
-            List<CardName> source = _dbContext.CardsNames.ToList();
+            List<CardName> source = await _dbContext.CardsNames.AsNoTracking().ToListAsync();
             foreach (CardName cardRequest in source)
             {
                 await ProcessOneCardNameAsync(cardRequest);

@@ -31,7 +31,7 @@ public class PriceController : ControllerBase
     /// <param name="cardSetId">выбрать id из базы</param>
     /// <returns>цена данной карты</returns>
     [HttpGet]
-    public async Task<ActionResult> GetPrice(int cardSetId)
+    public async Task<ActionResult> GetPriceAsync(int cardSetId)
     {
         try
         {
@@ -39,6 +39,7 @@ public class PriceController : ControllerBase
                                                    .Include(x => x.Card)
                                                    .Include(x => x.Set)
                                                    .Include(x => x.Prices)
+                                                   .AsNoTracking()
                                                    .FirstOrDefault();
 
             if (cardSet == null)
@@ -69,6 +70,7 @@ public class PriceController : ControllerBase
             List<CardSet> source = await _dbContext.CardsSets.Include(x => x.Card)
                                                              .Include(x => x.Set)
                                                              .Include(x => x.Prices)
+                                                             .AsNoTracking()
                                                              .ToListAsync();
 
             foreach (CardSet cardRequest in source)
