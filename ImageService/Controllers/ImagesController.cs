@@ -4,18 +4,17 @@ using static System.IO.File;
 
 namespace ImageService.Controllers;
 
+/// <summary>
+/// 
+/// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
 public class ImagesController : ControllerBase
 {
     private readonly MtgContext _dbContext;
     private readonly ILogger<ImagesController> _logger;
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="logger"></param>
-    /// <param name="dbContext"></param>
+
+    /// <inheritdoc />
     public ImagesController(ILogger<ImagesController> logger, MtgContext dbContext)
     {
         _dbContext = dbContext;

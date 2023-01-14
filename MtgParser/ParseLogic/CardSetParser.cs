@@ -9,6 +9,9 @@ using IAngleConfig = AngleSharp.IConfiguration;
 
 namespace MtgParser.ParseLogic;
 
+/// <summary>
+/// Main mtg.ru parse logic here.. html in, staff out
+/// </summary>
 public class CardSetParser : BaseParser
 {
     private readonly MtgContext _context;
@@ -16,12 +19,20 @@ public class CardSetParser : BaseParser
     private static readonly string[] CellSelectorMain = {".SearchCardInfoText", ".SearchCardTextDiv"};
     private const string CellSelectorInfo = ".SearchCardInfoDIV";
     private const string FullTableInfo = ".NoteDiv";
-    
+
+    /// <inheritdoc />
     public CardSetParser(MtgContext context)
     {
         _context = context;
     }
 
+    /// <summary>
+    /// Распарсить информацию о карте
+    /// </summary>
+    /// <param name="doc">html для разбора</param>
+    /// <param name="isRus">русская ли карта? влияет на сохранённую картинку и отображение пользователю</param>
+    /// <returns>готовая карта или null</returns>
+    /// <exception cref="Exception">отсутствие интернета, упавший сайт.. что-то глобальное</exception>
     public Card? GetCard(IDocument doc, bool isRus)
     {
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
@@ -47,7 +58,7 @@ public class CardSetParser : BaseParser
             }
         }
 
-        if (!cellsText.Any())
+        if (cellsText?.Any() != true)
         {
             throw new Exception($"can't find text node in {doc.Source}");
         }
@@ -73,6 +84,11 @@ public class CardSetParser : BaseParser
         return result;
     }
     
+    /// <summary>
+    /// Распарсить информацию о редкости карт-сета
+    /// </summary>
+    /// <param name="doc">html для разбора</param>
+    /// <returns>Кард-сет с редкостью.. остальная информация заполняется отдельно</returns>
     public CardSet GetCardSet(IDocument doc)
     {
         CardSet result = new();
@@ -87,8 +103,8 @@ public class CardSetParser : BaseParser
     /// <summary>
     /// take all available sets info from html
     /// </summary>
-    /// <param name="doc"></param>
-    /// <returns></returns>
+    /// <param name="doc">html для разбора</param>
+    /// <returns>список сетов, фигурирующих в этой карте</returns>
     public static (IEnumerable<string> variousSets, IElement defaultOption) GetSetCandidates(IDocument doc)
     {
         IHtmlCollection<IElement> elements = doc.QuerySelectorAll(CellSelectorInfo);
@@ -99,13 +115,23 @@ public class CardSetParser : BaseParser
         return (cardVersions, elements[0]);
     }
 
-
+    /// <summary>
+    /// Распарсить информацию о сете
+    /// </summary>
+    /// <param name="doc">html для разбора</param>
+    /// <returns>полностью заполненный сет</returns>
     public Set GetSet(IDocument doc)
     {
         IHtmlCollection<IElement> cellsInfo = doc.QuerySelectorAll(CellSelectorInfo);
         return GetSet(cellsInfo.First());
     }
 
+    /// <summary>
+    /// Распарсить информацию о сете
+    /// </summary>
+    /// <param name="element">элемент html для разбора</param>
+    /// <returns>полностью заполненный сет</returns>
+    /// <exception cref="Exception">ошибка с именем сета или источником данных</exception>
     public Set GetSet(IElement element)
     {
         IHtmlImageElement? imgData = element.QuerySelector("img") as IHtmlImageElement;
@@ -204,10 +230,17 @@ public class CardSetParser : BaseParser
 
     private static (string cmc, string color) GetManaCostAndColor(IElement source)
     {
-        List<string> allData = source.QuerySelectorAll(".Mana")
+        List<string> allData = source.QuerySelector(".Mana")?
+                                     .ParentElement
+                                     .QuerySelectorAll(".Mana")
                                      .Select(x => (x as IHtmlImageElement)?.AlternativeText)
                                      .Where(x => !string.IsNullOrEmpty(x))
                                      .ToList()!;
+
+        if (allData == null)
+        {
+            return ("0", "-");
+        }
 
         List<string> allColorData = allData.Where(x => x.All(y => !IsDigitOrX(y))).ToList();
         

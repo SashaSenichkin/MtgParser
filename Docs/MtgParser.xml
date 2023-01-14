@@ -1,0 +1,754 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MtgParser</name>
+    </assembly>
+    <members>
+        <member name="T:MtgParser.Context.MtgContext">
+            <summary>
+            Full Db context for migrations.. have to be moved to separate project
+            </summary>
+        </member>
+        <member name="M:MtgParser.Context.MtgContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions)">
+            <summary>
+            context ctor for test and migrations auto-apply
+            </summary>
+            <param name="options"></param>
+        </member>
+        <member name="P:MtgParser.Context.MtgContext.Keywords">
+            <summary>
+            basic mtg Keywors
+            </summary>
+        </member>
+        <member name="P:MtgParser.Context.MtgContext.Prices">
+            <summary>
+            auto parsed prices. have to move all here soon
+            </summary>
+        </member>
+        <member name="P:MtgParser.Context.MtgContext.Rarities">
+            <summary>
+            enumeration for 5 rarity values
+            </summary>
+        </member>
+        <member name="P:MtgParser.Context.MtgContext.Sets">
+            <summary>
+            all sets, that figure in our Cards
+            </summary>
+        </member>
+        <member name="P:MtgParser.Context.MtgContext.Cards">
+            <summary>
+            Card essence) can be in many sets, various rarities, etc
+            </summary>
+        </member>
+        <member name="P:MtgParser.Context.MtgContext.CardsSets">
+            <summary>
+            physical embodiment of card 
+            </summary>
+        </member>
+        <member name="P:MtgParser.Context.MtgContext.CardsNames">
+            <summary>
+            list of cards for mass parsing
+            </summary>
+        </member>
+        <member name="P:MtgParser.Context.MtgContext.Users">
+            <summary>
+            list of our users
+            </summary>
+        </member>
+        <member name="P:MtgParser.Context.MtgContext.Permissions">
+            <summary>
+            role-model part
+            </summary>
+        </member>
+        <member name="P:MtgParser.Context.MtgContext.Orders">
+            <summary>
+            card orders
+            </summary>
+        </member>
+        <member name="M:MtgParser.Context.MtgContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            enumerations auto fill 
+            </summary>
+            <param name="modelBuilder"></param>
+        </member>
+        <member name="T:MtgParser.Context.MtgContextFactory">
+            <summary>
+            migration helper
+            </summary>
+        </member>
+        <member name="M:MtgParser.Context.MtgContextFactory.CreateDbContext(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="T:MtgParser.Controllers.ParseController">
+            <summary>
+            Parse single cardsSets and safe to DB
+            </summary>
+        </member>
+        <member name="M:MtgParser.Controllers.ParseController.#ctor(MtgParser.Context.MtgContext,Microsoft.Extensions.Logging.ILogger{MtgParser.Controllers.ParseController},MtgParser.Provider.ICardSetProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Controllers.ParseController.GetCardInfoAsync(System.String)">
+            <summary>
+            проверка общего механизма получения информации по названию
+            </summary>
+            <param name="cardName">название карты</param>
+            <returns>вся информация, которую мы смогли получить</returns>
+        </member>
+        <member name="M:MtgParser.Controllers.ParseController.GetCardSetInfoAsync(System.String,System.String)">
+            <summary>
+            проверка получение физического представления карты, с максимальной информацией, которую можем получить из других источников
+            </summary>
+            <param name="cardName">имя карты</param>
+            <param name="setShortName">аббревиатура сета. сет создастся в базе, если не найдётся в существующих</param>
+            <returns>вся информация, которую мы смогли получить</returns>
+        </member>
+        <member name="M:MtgParser.Controllers.ParseController.PostToDbAsync(System.String)">
+            <summary>
+            сохранение в базу данных информации по одной карте
+            </summary>
+            <param name="cardName">имя карты</param>
+            <returns>успешность операции</returns>
+        </member>
+        <member name="M:MtgParser.Controllers.ParseController.ReparseCards(System.Int32[])">
+            <summary>
+            принудительное обновление информации по конкректным картам. поиск пойдёт по NameRus, если карта русская и по Name, если английская. 
+            </summary>
+            <param name="cardIds">оставить пустым для принудительного обновления ВСЕХ КАРТ</param>
+            <returns>успешность операции</returns>
+        </member>
+        <member name="T:MtgParser.Controllers.ParseManyController">
+            <summary>
+            Api methods for automation mass parse, save to db and clear all.
+            </summary>
+        </member>
+        <member name="M:MtgParser.Controllers.ParseManyController.#ctor(MtgParser.Context.MtgContext,MtgParser.Provider.ICardSetProvider,Microsoft.Extensions.Logging.ILogger{MtgParser.Controllers.ParseManyController})">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Controllers.ParseManyController.PostCardNamesInfo(System.Collections.Generic.IEnumerable{MtgParser.Model.CardName})">
+            <summary>
+            загрузить имена для дальнейшей разборки
+            </summary>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MtgParser.Controllers.ParseManyController.GetCardNamesInfoAsync(System.String)">
+            <summary>
+            получить информацию по именам для теста
+            </summary>
+            <param name="dataRaw"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MtgParser.Controllers.ParseManyController.ClearParsedData">
+            <summary>
+            удалить все данные, кроме справочников Rarity, Keywords и вручную заполняемой таблицы CardNames
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MtgParser.Controllers.ParseManyController.ParseAllCardNamesToDbAsync">
+            <summary>
+            проходится по всем записям в таблице CardNames, пытается получить информацию с сайтов и сохранить в нашем виде
+            </summary>
+            <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
+        </member>
+        <member name="T:MtgParser.Controllers.PriceController">
+            <summary>
+            auto price getter
+            </summary>
+        </member>
+        <member name="M:MtgParser.Controllers.PriceController.#ctor(MtgParser.Context.MtgContext,MtgParser.Provider.IPriceProvider,Microsoft.Extensions.Logging.ILogger{MtgParser.Controllers.PriceController})">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Controllers.PriceController.GetPriceAsync(System.Int32)">
+            <summary>
+            тестовое получение цены по физическому представлениею карты
+            </summary>
+            <param name="cardSetId">выбрать id из базы</param>
+            <returns>цена данной карты</returns>
+        </member>
+        <member name="M:MtgParser.Controllers.PriceController.FillPricesAsync">
+            <summary>
+            заберёт всю информацию из базы, постарается найти цены на все CardSet
+            </summary>
+            <returns>успех-провал</returns>
+        </member>
+        <member name="T:MtgParser.Controllers.SelfCheckController">
+            <summary>
+            check db for parse errors and other issues.
+            </summary>
+        </member>
+        <member name="M:MtgParser.Controllers.SelfCheckController.#ctor(MtgParser.Context.MtgContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Controllers.SelfCheckController.GetUnparsedCardsAsync">
+            <summary>
+            получить спискок карт, которые не получилось распарсить
+            </summary>
+            <returns>cardName, которые надо поправить или перепарсить</returns>
+        </member>
+        <member name="M:MtgParser.Controllers.SelfCheckController.GetDuplicateCards">
+            <summary>
+            получить спискок карт, которые почему-то попали в базу более одного раза..
+            </summary>
+            <returns>cardName, которые надо поправить или перепарсить</returns>
+        </member>
+        <member name="M:MtgParser.Controllers.SelfCheckController.GetVersion">
+            <summary>
+            отладочное апи. получает текущую версию приложения
+            </summary>
+            <returns> major.minor.build.revision</returns>
+        </member>
+        <member name="T:MtgParser.Controllers.SelfFixController">
+            <summary>
+            fix simple staff.. dont add here methods, if you not sure that it will not broke something in future.. better save one-time sql
+            </summary>
+        </member>
+        <member name="M:MtgParser.Controllers.SelfFixController.#ctor(MtgParser.Context.MtgContext,Microsoft.Extensions.Logging.ILogger{MtgParser.Controllers.ParseManyController})">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Controllers.SelfFixController.TrimCardNamesAsync">
+            <summary>
+            обрезает лишнее от внесённых вручную карт
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:MtgParser.Migrations.Initial">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Migrations.Initial.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Migrations.Initial.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Migrations.Initial.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:MtgParser.Migrations.AddUsersOrdersPerm">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Migrations.AddUsersOrdersPerm.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Migrations.AddUsersOrdersPerm.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Migrations.AddUsersOrdersPerm.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:MtgParser.Model.BaseModel">
+            <summary>
+            общие для сущностей поля
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.BaseModel.Id">
+            <summary>
+            ну.. id как будто везде нужен, так что я вынес в базовый класс
+            </summary>
+        </member>
+        <member name="T:MtgParser.Model.Card">
+            <summary>
+            Абстрактное описание карты
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.Name">
+            <summary>
+            Название на англ
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.NameRus">
+            <summary>
+            Название на русском
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.Color">
+            <summary>
+            цвет карты
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.Cmc">
+            <summary>
+            Концентрированная мана стоимость
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.Type">
+            <summary>
+            Тип карты, англ
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.TypeRus">
+            <summary>
+            Тип карты, рус
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.Text">
+            <summary>
+            Описание действий карты, англ
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.TextRus">
+            <summary>
+            Описание действий карты, рус
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.Power">
+            <summary>
+            Сила карты. может быть прочерк, может быть бесконечность
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.Toughness">
+            <summary>
+            Прочность карты. может быть прочерк
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.Img">
+            <summary>
+            ссылка на картинку
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.IsRus">
+            <summary>
+            поле для фронта. у некоторых карт скрываем русское описание вообще. 
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Card.Keywords">
+            <summary>
+            Массив связанных ключевых слов
+            </summary>
+        </member>
+        <member name="T:MtgParser.Model.CardName">
+            <summary>
+            Минимально необходимая для парсинга информация. Не писать в эту таблицу из кода. только считываем заведённое вручную 
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardName.Name">
+            <summary>
+            Имя карты, англ
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardName.NameRus">
+            <summary>
+            Имя карты, рус
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardName.Quantity">
+            <summary>
+            Количество таких карт из этого сета в коллекции
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardName.IsFoil">
+            <summary>
+            Фойловость карт (блестящее напыление)
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardName.SetShort">
+            <summary>
+            Аббревиатура сета
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardName.SeekName">
+            <summary>
+            use it to get word to seek in search engine
+            </summary>
+        </member>
+        <member name="M:MtgParser.Model.CardName.IsCardEqual(MtgParser.Model.Card)">
+            <summary>
+            Проверка совпадений сущности и карты..
+            </summary>
+            <param name="candidate">карта для проверки соответствия текущему CardName</param>
+            <returns>совпадение или нет</returns>
+        </member>
+        <member name="T:MtgParser.Model.CardSet">
+            <summary>
+            Отображение физической карты
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardSet.Card">
+            <summary>
+            Связанное описание карты
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardSet.Set">
+            <summary>
+            Сет принадлежности карты
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardSet.Prices">
+            <summary>
+            Полученные цены
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardSet.Quantity">
+            <summary>
+            Количество таких карт из этого сета в коллекции
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardSet.IsFoil">
+            <summary>
+            Фойловость карт (блестящее напыление)
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardSet.Rarity">
+            <summary>
+            редкость карты в этом сете
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.CardSet.ManualPrice">
+            <summary>
+            введённая вручную цена. на неё фронт смотрит, и игнорит все наши, если есть..
+            </summary>
+        </member>
+        <member name="T:MtgParser.Model.Keyword">
+            <summary>
+            Ключевое слово. согласно https://en.wikipedia.org/wiki/List_of_Magic:_The_Gathering_keywords их больше сотни. сейчас тестил только на Evergreen.
+            ЗАВОДЯТСЯ В БАЗУ ВРУЧНУЮ
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Keyword.Name">
+            <summary>
+            название, англ
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Keyword.RusName">
+            <summary>
+            название, рус
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Keyword.Cards">
+            <summary>
+            связь с картой - многие ко многим, EF создал промежуточную таблицу
+            </summary>
+        </member>
+        <member name="T:MtgParser.Model.Order">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Order.User">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Order.CreatedDate">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Order.ModifyDate">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Order.TrackNumber">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Order.Comment">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Order.Status">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Order.Products">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:MtgParser.Model.Permission">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Permission.User">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Permission.PermissionStr">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:MtgParser.Model.Price">
+            <summary>
+            Цена на конкректную физическую карту, с днём получения из api
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Price.Value">
+            <summary>
+            сумма, $
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Price.CreateDate">
+            <summary>
+            дата создания записи в таблице
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Price.CardSet">
+            <summary>
+            привязка к физической карте
+            </summary>
+        </member>
+        <member name="T:MtgParser.Model.Rarity">
+            <summary>
+            Возможные редкости карты. на данный момент - 5. должно биться с названиями на mtg.ru
+            ЗАВОДЯТСЯ В БАЗУ ВРУЧНУЮ
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Rarity.Name">
+            <summary>
+            имя, англ
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Rarity.RusName">
+            <summary>
+            имя, рус
+            </summary>
+        </member>
+        <member name="T:MtgParser.Model.Set">
+            <summary>
+            Сеты для карт
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Set.RusName">
+            <summary>
+            Название сета, рус
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Set.FullName">
+            <summary>
+            Название сета, англ
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Set.ShortName">
+            <summary>
+            Аббревиатура сета
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Set.SearchText">
+            <summary>
+            Для поиска цен, пробелы заменяются на плюсы.. возможно, где-то будут и другие правила замены.. оставлю это для ручной правки
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.Set.SetImg">
+            <summary>
+            Картинка с пиктограммой сета
+            </summary>
+        </member>
+        <member name="T:MtgParser.Model.User">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.User.Email">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.User.Password">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.User.Name">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.User.Surname">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.User.Address">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.User.RegistrationDate">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.User.CheckWord">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.User.Status">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:MtgParser.Model.User.BanDate">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:MtgParser.ParseLogic.BaseParser">
+            <summary>
+            common for all parsers logic
+            </summary>
+        </member>
+        <member name="M:MtgParser.ParseLogic.BaseParser.IsDigitOrX(System.Char)">
+            <summary>
+            use it to parse mana cost
+            </summary>
+            <param name="symbol"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MtgParser.ParseLogic.BaseParser.GetSeparateString(System.String,System.String)">
+            <summary>
+            intricate method.. separate english and russian text, type etc
+            </summary>
+            <param name="source">string to separate</param>
+            <param name="separator">separator // - default</param>
+            <returns>left and right parts</returns>
+            <exception cref="T:System.ArgumentException">if source is null</exception>
+        </member>
+        <member name="M:MtgParser.ParseLogic.BaseParser.GetSubStringAfterChar(System.String,System.Char[])">
+            <summary>
+            to check numerous split conditions in one pass 
+            </summary>
+            <param name="text">string source</param>
+            <param name="separators">chars to split string</param>
+            <returns>substring after first of separators</returns>
+        </member>
+        <member name="T:MtgParser.ParseLogic.CardSetParser">
+            <summary>
+            Main mtg.ru parse logic here.. html in, staff out
+            </summary>
+        </member>
+        <member name="M:MtgParser.ParseLogic.CardSetParser.#ctor(MtgParser.Context.MtgContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.ParseLogic.CardSetParser.GetCard(AngleSharp.Dom.IDocument,System.Boolean)">
+            <summary>
+            Распарсить информацию о карте
+            </summary>
+            <param name="doc">html для разбора</param>
+            <param name="isRus">русская ли карта? влияет на сохранённую картинку и отображение пользователю</param>
+            <returns>готовая карта или null</returns>
+            <exception cref="T:System.Exception">отсутствие интернета, упавший сайт.. что-то глобальное</exception>
+        </member>
+        <member name="M:MtgParser.ParseLogic.CardSetParser.GetCardSet(AngleSharp.Dom.IDocument)">
+            <summary>
+            Распарсить информацию о редкости карт-сета
+            </summary>
+            <param name="doc">html для разбора</param>
+            <returns>Кард-сет с редкостью.. остальная информация заполняется отдельно</returns>
+        </member>
+        <member name="M:MtgParser.ParseLogic.CardSetParser.GetSetCandidates(AngleSharp.Dom.IDocument)">
+            <summary>
+            take all available sets info from html
+            </summary>
+            <param name="doc">html для разбора</param>
+            <returns>список сетов, фигурирующих в этой карте</returns>
+        </member>
+        <member name="M:MtgParser.ParseLogic.CardSetParser.GetSet(AngleSharp.Dom.IDocument)">
+            <summary>
+            Распарсить информацию о сете
+            </summary>
+            <param name="doc">html для разбора</param>
+            <returns>полностью заполненный сет</returns>
+        </member>
+        <member name="M:MtgParser.ParseLogic.CardSetParser.GetSet(AngleSharp.Dom.IElement)">
+            <summary>
+            Распарсить информацию о сете
+            </summary>
+            <param name="element">элемент html для разбора</param>
+            <returns>полностью заполненный сет</returns>
+            <exception cref="T:System.Exception">ошибка с именем сета или источником данных</exception>
+        </member>
+        <member name="T:MtgParser.ParseLogic.PriceParser">
+            <summary>
+            main prise parser logic.. html in, staff out
+            </summary>
+        </member>
+        <member name="M:MtgParser.ParseLogic.PriceParser.GetPrice(MtgParser.Model.CardSet,AngleSharp.Dom.IDocument)">
+            <summary>
+            Получение цены для физической карты
+            </summary>
+            <param name="cardSet">ссылка на физическую карту. фактически, достаточно названия и аббревиатуры сета</param>
+            <param name="doc">html для разбора</param>
+            <returns>цена карты</returns>
+            <exception cref="T:System.Exception">полученные исключение просто перебрасываются выше, с выводом в консоль</exception>
+        </member>
+        <member name="T:MtgParser.Provider.BaseProvider">
+            <summary>
+            common for all providers logic
+            </summary>
+        </member>
+        <member name="M:MtgParser.Provider.BaseProvider.#ctor">
+            <summary>
+            ctor. some AngleSharp adjustments
+            </summary>
+        </member>
+        <member name="M:MtgParser.Provider.BaseProvider.GetHtmlAsync(System.String)">
+            <summary>
+            download html by url. not a big deal
+            </summary>
+            <param name="url">download url</param>
+            <returns>AngleSharp entity.. send it to parsers)</returns>
+        </member>
+        <member name="T:MtgParser.Provider.CardSetProvider">
+            <inheritdoc cref="T:MtgParser.Provider.ICardSetProvider" />
+        </member>
+        <member name="M:MtgParser.Provider.CardSetProvider.#ctor(MtgParser.Context.MtgContext,MtgParser.ParseLogic.CardSetParser,Microsoft.Extensions.Configuration.IConfiguration)">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Provider.CardSetProvider.GetCardSetAsync(MtgParser.Model.CardName)">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Provider.CardSetProvider.GetDataFromWebAsync(MtgParser.Model.CardName,MtgParser.Model.Card,MtgParser.Model.Set)">
+            <inheritdoc />
+        </member>
+        <member name="T:MtgParser.Provider.ICardSetProvider">
+            <summary>
+            Main business logic for now.. took cardName, check with DB, load html, invoke parser 
+            </summary>
+        </member>
+        <member name="M:MtgParser.Provider.ICardSetProvider.GetCardSetAsync(MtgParser.Model.CardName)">
+            <summary>
+            checks Set from DB, then gets html and pass it to CardSetParser
+            </summary>
+            <param name="cardName">request object</param>
+            <returns>Set in db already, but card and cardSet are your to proceed</returns>
+        </member>
+        <member name="M:MtgParser.Provider.ICardSetProvider.GetDataFromWebAsync(MtgParser.Model.CardName,MtgParser.Model.Card,MtgParser.Model.Set)">
+            <summary>
+            Get All available data from web. Card, Set Rarity for CardSet
+            </summary>
+            <param name="cardName">search entity</param>
+            <param name="storedCard">card from db if present</param>
+            <param name="storedSet">set from db if present</param>
+            <returns>CardSet parsed from web</returns>
+            <exception cref="T:System.Exception">some shit happened.. no internet, of evil forces approach</exception>
+        </member>
+        <member name="T:MtgParser.Provider.IPriceProvider">
+            <summary>
+            Price logic.. pretty raw, many white spots, but 60% Cards can handle
+            </summary>
+        </member>
+        <member name="M:MtgParser.Provider.IPriceProvider.GetPriceAsync(MtgParser.Model.CardSet)">
+            <summary>
+            Предельно просто. отправляем CardSet, получаем цену, если поиск по GoldFish что-то дал
+            </summary>
+            <param name="cardSet"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MtgParser.Provider.PriceProvider">
+            <inheritdoc cref="T:MtgParser.Provider.IPriceProvider" />
+        </member>
+        <member name="M:MtgParser.Provider.PriceProvider.#ctor(MtgParser.ParseLogic.PriceParser,Microsoft.Extensions.Configuration.IConfiguration)">
+            <inheritdoc />
+        </member>
+        <member name="M:MtgParser.Provider.PriceProvider.GetPriceAsync(MtgParser.Model.CardSet)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

@@ -6,6 +6,9 @@ using MtgParser.Provider;
 
 namespace MtgParser.Controllers;
 
+/// <summary>
+/// auto price getter
+/// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
 public class PriceController : ControllerBase
@@ -13,7 +16,8 @@ public class PriceController : ControllerBase
     private readonly IPriceProvider _priceProvider;
     private readonly ILogger<PriceController> _logger;
     private readonly MtgContext _dbContext;
-    
+
+    /// <inheritdoc />
     public PriceController(MtgContext dbContext, IPriceProvider priceProvider,  ILogger<PriceController> logger)
     {
         _priceProvider = priceProvider;
@@ -27,7 +31,7 @@ public class PriceController : ControllerBase
     /// <param name="cardSetId">выбрать id из базы</param>
     /// <returns>цена данной карты</returns>
     [HttpGet]
-    public async Task<ActionResult> GetPrice(int cardSetId)
+    public async Task<ActionResult> GetPriceAsync(int cardSetId)
     {
         try
         {
@@ -35,6 +39,7 @@ public class PriceController : ControllerBase
                                                    .Include(x => x.Card)
                                                    .Include(x => x.Set)
                                                    .Include(x => x.Prices)
+                                                   .AsNoTracking()
                                                    .FirstOrDefault();
 
             if (cardSet == null)
@@ -53,7 +58,10 @@ public class PriceController : ControllerBase
         }
     }
 
-
+    /// <summary>
+    /// заберёт всю информацию из базы, постарается найти цены на все CardSet
+    /// </summary>
+    /// <returns>успех-провал</returns>
     [HttpPost]
     public async Task<ActionResult> FillPricesAsync()
     {
@@ -62,6 +70,7 @@ public class PriceController : ControllerBase
             List<CardSet> source = await _dbContext.CardsSets.Include(x => x.Card)
                                                              .Include(x => x.Set)
                                                              .Include(x => x.Prices)
+                                                             .AsNoTracking()
                                                              .ToListAsync();
 
             foreach (CardSet cardRequest in source)
@@ -76,7 +85,7 @@ public class PriceController : ControllerBase
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("can't find price for card {Card} set {Set} ", 
+                    _logger.LogError(e, "can't find price for card {Card} set {Set} ", 
                                     cardRequest.Card.Name, 
                                     cardRequest.Set.ShortName);
                 }

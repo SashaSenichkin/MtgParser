@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MtgParser.Context;
 using MtgParser.Model;
 using MtgParser.Provider;
@@ -6,6 +7,9 @@ using Newtonsoft.Json;
 
 namespace MtgParser.Controllers;
 
+/// <summary>
+/// Api methods for automation mass parse, save to db and clear all.
+/// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
 public class ParseManyController : ControllerBase
@@ -13,7 +17,8 @@ public class ParseManyController : ControllerBase
     private readonly ICardSetProvider _cardSetProvider;
     private readonly ILogger<ParseManyController> _logger;
     private readonly MtgContext _dbContext;
-    
+
+    /// <inheritdoc />
     public ParseManyController(MtgContext dbContext, ICardSetProvider cardSetProvider, ILogger<ParseManyController> logger)
     {
         _cardSetProvider = cardSetProvider;
@@ -100,11 +105,11 @@ public class ParseManyController : ControllerBase
     /// </summary>
     /// <returns>Общая успешность обработки. смотри лог, в случае глобальных ошибок и для частных, которые не влияют на общую успешность</returns>
     [HttpPost]
-    public async Task<bool> ParceAllCardNamesToDbAsync()
+    public async Task<bool> ParseAllCardNamesToDbAsync()
     {
         try
         {
-            List<CardName> source = _dbContext.CardsNames.ToList();
+            List<CardName> source = await _dbContext.CardsNames.AsNoTracking().ToListAsync();
             foreach (CardName cardRequest in source)
             {
                 await ProcessOneCardNameAsync(cardRequest);
@@ -135,7 +140,13 @@ public class ParseManyController : ControllerBase
             CardSet cardSet = await _cardSetProvider.GetCardSetAsync(cardRequest);
             if (cardSet.Id == default)
             {
-                _logger.LogInformation("add card {CardName} {CardNameRus} {Rarity} + {SetShortName}", cardSet.Card.Name, cardSet.Card.NameRus, cardSet.Rarity.Name, cardSet.Set.ShortName);
+                _logger.LogInformation("add card {CardName} {CardNameRus} {Rarity} + {SetShortName} from {cardNameId}", 
+                                        cardSet.Card.Name,
+                                        cardSet.Card.NameRus,
+                                        cardSet.Rarity.Name,
+                                        cardSet.Set.ShortName,
+                                        cardRequest.Id);
+                
                 await _dbContext.CardsSets.AddAsync(cardSet);
             }
         }

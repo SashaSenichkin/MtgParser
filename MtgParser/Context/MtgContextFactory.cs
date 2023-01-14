@@ -8,6 +8,7 @@ namespace MtgParser.Context;
 /// </summary>
 public class MtgContextFactory : IDesignTimeDbContextFactory<MtgContext>
 {
+    /// <inheritdoc />
     public MtgContext CreateDbContext(string[] args)
     {
         // Get environment

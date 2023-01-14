@@ -1,4 +1,5 @@
-﻿namespace ImageService.Context;
+﻿#pragma warning disable CS8618
+namespace ImageService.Context;
 
 /// <summary>
 /// Абстрактное описание карты
