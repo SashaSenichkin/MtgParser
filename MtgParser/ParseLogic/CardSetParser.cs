@@ -230,7 +230,9 @@ public class CardSetParser : BaseParser
 
     private static (string cmc, string color) GetManaCostAndColor(IElement source)
     {
-        List<string> allData = source.QuerySelectorAll(".Mana")
+        List<string> allData = source.QuerySelector(".Mana")
+                                     .ParentElement
+                                     .QuerySelectorAll(".Mana")
                                      .Select(x => (x as IHtmlImageElement)?.AlternativeText)
                                      .Where(x => !string.IsNullOrEmpty(x))
                                      .ToList()!;
