@@ -1,5 +1,6 @@
 using Serilog;
 using ImageService.Context;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 string? connectionString = builder.Configuration.GetConnectionString("MtgContext");
-builder.Services.AddSqlServer<MtgContext>(connectionString);
+builder.Services.AddMySql<MtgContext>(connectionString, ServerVersion.AutoDetect(connectionString));
 
 builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration)

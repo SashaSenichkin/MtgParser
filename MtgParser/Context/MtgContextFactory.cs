@@ -24,7 +24,7 @@ public class MtgContextFactory : IDesignTimeDbContextFactory<MtgContext>
         
         DbContextOptionsBuilder<MtgContext> optionsBuilder = new();
         string? connectionString = config.GetConnectionString("MtgContext");
-        optionsBuilder.UseSqlServer(connectionString);
+        optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
         
         return new MtgContext(optionsBuilder.Options);
     }
