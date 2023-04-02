@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MtgParser.Context;
 
@@ -10,9 +11,11 @@ using MtgParser.Context;
 namespace MtgParser.Migrations
 {
     [DbContext(typeof(MtgContext))]
-    partial class MtgContextModelSnapshot : ModelSnapshot
+    [Migration("20230402181928_AddIsParsed")]
+    partial class AddIsParsed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

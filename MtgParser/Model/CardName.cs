@@ -35,6 +35,12 @@ public class CardName : BaseModel
     /// use it to get word to seek in search engine
     /// </summary>
     public string? SeekName => string.IsNullOrEmpty(Name) ? NameRus : Name;
+    
+        
+    /// <summary>
+    /// Is card parsed already
+    /// </summary>
+    public bool IsParsed { get; set; }
 
     /// <summary>
     /// Проверка совпадений сущности и карты..

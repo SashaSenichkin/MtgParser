@@ -338,6 +338,11 @@
             use it to get word to seek in search engine
             </summary>
         </member>
+        <member name="P:MtgParser.Model.CardName.IsParsed">
+            <summary>
+            Is card parsed already
+            </summary>
+        </member>
         <member name="M:MtgParser.Model.CardName.IsCardEqual(MtgParser.Model.Card)">
             <summary>
             Проверка совпадений сущности и карты..
