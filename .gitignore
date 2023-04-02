@@ -116,3 +116,4 @@ StyleCop.Cache
 Itsk.ER.DC.Frontend/grunt
 MtgParser/logs/
 ImageService/logs/
+mtg_backup/
