@@ -35,7 +35,7 @@ builder.Services.AddScoped<ICardSetProvider, CardSetProvider>();
 
 string? connectionString = builder.Configuration.GetConnectionString("MtgContext");
 
-builder.Services.AddSqlServer<MtgContext>(connectionString);
+builder.Services.AddMySql<MtgContext>(connectionString, ServerVersion.AutoDetect(connectionString));
         
 WebApplication app = builder.Build();
         

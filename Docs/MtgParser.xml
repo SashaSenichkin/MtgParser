@@ -223,18 +223,6 @@
         <member name="M:MtgParser.Migrations.Initial.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
-        <member name="T:MtgParser.Migrations.AddUsersOrdersPerm">
-            <inheritdoc />
-        </member>
-        <member name="M:MtgParser.Migrations.AddUsersOrdersPerm.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:MtgParser.Migrations.AddUsersOrdersPerm.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:MtgParser.Migrations.AddUsersOrdersPerm.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
         <member name="T:MtgParser.Model.BaseModel">
             <summary>
             общие для сущностей поля
