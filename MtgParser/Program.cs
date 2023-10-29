@@ -1,9 +1,13 @@
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
 using MtgParser.Context;
 using MtgParser.ParseLogic;
 using MtgParser.Provider;
 using Serilog;
+
+DotNetEnv.Env.TraversePath().Load();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
